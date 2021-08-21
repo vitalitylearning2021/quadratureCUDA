@@ -1,105 +1,49 @@
 # Numerical quadrature in CUDA with reusable software
 
-In many practical technical and scientific problems, analytically
-computing integrals can be difficult or even impossible. Nevertheless,
-engineers or scientists do not really need a beautiful formula
-expressing the integrals they are dealing with, but they just need
-numbers with a sufficient degree of precision. Furthermore, in many
-problems, iterative processes need calculating integrals of different
-integrand functions a very large number of times. There is thus the need
-for numerically computing integrals in a short time.  
-Fortunately, throughout the literature, a very large number of
-*numerical integration techniques*, also known as *quadrature
-techniques*, are available. As we will see, implementing numerical
-integration traces back to the problem of computing the sum of
-sequences, a problem that is very well suited to CUDA acceleration.  
-In this chapter, we will be covering the following topics:
+In many practical technical and scientific problems, analytically computing integrals can be difficult or even impossible. Nevertheless, engineers or scientists do not really need a beautiful formula expressing the integrals they are dealing with, but they just need numbers with a sufficient degree of precision. Furthermore, in many problems, iterative processes need calculating integrals of different integrand functions a very large number of times. There is thus the need for numerically computing integrals in a short time.  
+Fortunately, throughout the literature, a very large number of *numerical integration techniques*, also known as *quadrature techniques*, are available. As we will see, implementing numerical integration traces back to the problem of computing the sum of sequences, a problem that is very well suited to CUDA acceleration.  
+In this project, we will be covering the following topics:
 
   - Numerical quadrature with CUDA;
-
   - One-dimensional integration as a reduction problem;
-
   - Parallel reduction;
-
-  - One-dimensional integration with reusable software (Thrust, CUB, and
-    ModernGPU);
-
+  - One-dimensional integration with reusable software (Thrust, CUB, and ModernGPU);
   - Two-dimensional Monte Carlo integration;
-
   - Repeated Weddle’s quadrature.
 
-By the end of the chapter, the Readers will learn the basic aspects of a
-very common operation in parallel programming, namely, reduction.
-Furthermore, they will become familiar with the underlying philosophy
-behind four main libraries used in CUDA, namely, Thrust, CUB, ModernGPU
-and cuRAND. Finally, they will approach the basic operations implemented
-by the above three libraries, and, in particular, reduction and random
-number generation.  
-Knowing of Thrust, CUB, ModernGPU, and cuRAND will make you in a
-position to avoid reinventing the wheel in order to implement basic CUDA
-operations or more involved approaches by combining the off-the-shelf
-routines of these libraries.
+By the end of the project, the Readers will learn the basic aspects of a very common operation in parallel programming, namely, reduction. Furthermore, they will become familiar with the underlying philosophy behind four main libraries used in CUDA, namely, Thrust, CUB, ModernGPU and cuRAND. Finally, they will approach the basic operations implemented
+by the above three libraries, and, in particular, reduction and random number generation.  
+Knowing of Thrust, CUB, ModernGPU, and cuRAND will make you in a position to avoid reinventing the wheel in order to implement basic CUDA operations or more involved approaches by combining the off-the-shelf routines of these libraries.
 
 ## Getting started
 
-In the present chapter, the key elements of numerical integration
-required to understand the codes will be provided on a detailed level
-and the exploited CUDA libraries briefly recalled.  
-As prerequisites, fundamentals of C++ template programming and C++
-Standard Library are required. Also, some knowledge of lambda functions
-is necessary for understanding the ModernGPU case.  
-The Github link for all the code files is as below:
-<https://github.com/CIuliusC/CUDA_Book/tree/master/Chapter%2002>.
+The key elements of numerical integration required to understand the codes will be provided on a detailed level and the exploited CUDA libraries briefly recalled.  
+As prerequisites, fundamentals of C++ template programming and C++ Standard Library are required. Also, some knowledge of lambda functions is necessary for understanding the ModernGPU case.  
 
 ## Numerical quadrature with CUDA
 
-Writing a CUDA code simultaneously reaching high performance and being
-portable across different GPU architectures is a complicated task since
-it requires the Programmer to master a vast knowledge of the underlying
-hardware and take full advantage of the relevant features of the CUDA
-programming model.  
-Fortunately, many codes can be reorganized in terms of primitive
-operations. Many times, such primitive operations amount to *scan*,
-*reduce* or *sort*. Some other times, they coincide with the Fast
-Fourier Transform (FFT), with linear algebra manipulation operations or
-with primitives for the generation of random numbers. Moreover, the CUDA
-ecosystem makes many libraries available. These libraries implement the
-mentioned operations in a reliable, portable, efficient, and effective
-way so that the complexities and details of the underlying device and
-CUDA programming model are abstracted away.  
-Such libraries include Thrust, CUB, ModernGPU, CUDPP, cuSPARSE, cuRAND,
-cuFFT and so on. In this project, we will see four of them at work,
-namely, Thrust, CUB, ModernGPU, and cuRAND. They will be applied to a
-very common problem in numerical computation, namely, numerical
-integration or quadrature.  
-We will, in particular, consider the numerical integration of real
-functions of one or two real variables. In the one-dimensional case,
-quadrature rules based on Romberg’s and Simpson’s quadratures will be
-considered, while, in the two-dimensional case, we will deal with Monte
-Carlo integration. In the former case, the problem essentially amounts
-to a reduction problem, namely, the summation of a certain number of
-elements, while, in the latter case, the key point is the reliable
-generation of random numbers.  
-Thrust, CUB, and ModernGPU will be of help in the one-dimensional case,
-thanks to their ability to perform reduction operations. cuRAND and
-Thrust will be the main actors in the two-dimensional case thanks to
-their capability to fastly and reliably generate random numbers.  
-Throughout this chapter, one-dimensional numerical integration will
-amount at computing the integral:
+Writing a CUDA code simultaneously reaching high performance and being portable across different GPU architectures is a complicated task since it requires the Programmer to master a vast knowledge of the underlying hardware and take full advantage of the relevant features of the CUDA programming model.  
+Fortunately, many codes can be reorganized in terms of primitive operations. Many times, such primitive operations amount to *scan*, *reduce* or *sort*. Some other times, they coincide with the Fast Fourier Transform (FFT), with linear algebra manipulation operations or with primitives for the generation of random numbers. Moreover, the CUDA
+ecosystem makes many libraries available. These libraries implement the mentioned operations in a reliable, portable, efficient, and effective way so that the complexities and details of the underlying device and CUDA programming model are abstracted away.  
+Such libraries include Thrust, CUB, ModernGPU, CUDPP, cuSPARSE, cuRAND, cuFFT and so on. In this project, we will see four of them at work, namely, Thrust, CUB, ModernGPU, and cuRAND. They will be applied to a very common problem in numerical computation, namely, numerical integration or quadrature.  
+We will, in particular, consider the numerical integration of real functions of one or two real variables. In the one-dimensional case, quadrature rules based on Romberg’s and Simpson’s quadratures will be considered, while, in the two-dimensional case, we will deal with Monte Carlo integration. In the former case, the problem essentially amounts
+to a reduction problem, namely, the summation of a certain number of elements, while, in the latter case, the key point is the reliable generation of random numbers.  
+Thrust, CUB, and ModernGPU will be of help in the one-dimensional case, thanks to their ability to perform reduction operations. cuRAND and Thrust will be the main actors in the two-dimensional case thanks to their capability to fastly and reliably generate random numbers.   
+Throughout this project, one-dimensional numerical integration will amount at computing the integral:
 
-\[I=\int_a^b f(x)dx,\]
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=I=\int_a^b f(x)dx,">       [1]
+</p>
 
-where \(f\) is a real function of a single real variable.  
-The two-dimensional numerical integration will amount at calculating the
-integral:
+where <img src="https://render.githubusercontent.com/render/math?math=f"> is a real function of a single real variable.  
+The two-dimensional numerical integration will amount at calculating the integral:
 
-\[J=\iint_D g(x,y)dD,\]
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=J=\iint_D g(x,y)dD,">       [2]
+</p>
 
-where \(g\) is a real function of two real variables and \(D\) is the
-integration domain.  
-Let us break the seal and start with the technical details of
-one-dimensional integration. Next section will be rather technical, but
-no worries: implementations and fun will come shortly.
+where <img src="https://render.githubusercontent.com/render/math?math=g"> is a real function of two real variables and <img src="https://render.githubusercontent.com/render/math?math=D"> is the integration domain.  
+Let us break the seal and start with the technical details of one-dimensional integration. Next section will be rather technical, but no worries: implementations and fun will come shortly.
 
 ## Theory: understanding one-dimensional integration
 
