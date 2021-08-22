@@ -47,62 +47,26 @@ Let us break the seal and start with the technical details of one-dimensional in
 
 ## Theory: understanding one-dimensional integration
 
-In the one-dimensional case, numerical integration consists of
-estimating the area subtended by the curve \((x,f(x))\) with
-\(x\in(a,b)\) (see figure [1.1](#integration)). The idea underlying many
-one-dimensional numerical integrations is operating along three steps.
+In the one-dimensional case, numerical integration consists of estimating the area subtended by the curve <img src="https://render.githubusercontent.com/render/math?math=(x,f(x))"> with <img src="https://render.githubusercontent.com/render/math?math=x\in(a,b)"> (see figure [1](#integration)). The idea underlying many one-dimensional numerical integrations is operating along three steps.
 
-1.  The first step is to divide the integration interval \((a,b)\) into
-    small intervals.
+1.  The first step is to divide the integration interval <img src="https://render.githubusercontent.com/render/math?math=(a,b)"> into small intervals.
+2.  The second step consists of approximating the integrals over the mentioned intervals according to rules like the midpoint rule, the trapezoidal rule or the Simpson’s rule which will be dealt with in the following. Of course, there are many other rules that are not covered in this project. For example, the midpoint rule, the trapezoidal rule, and the Simpson’s rule consist of approximating the integrand function by zeroth, first and second-order polynomials, respectively, over the integration sub-intervals of the domain <img src="https://render.githubusercontent.com/render/math?math=(a,b)"> by Lagrange interpolation. Using higher-order polynomial approximations would lead to general Newton-Cotes integration, which will not be covered throughout the present project. Another possibility not covered throughout the project regards Clenshaw-Curtis or Fejér quadrature using Chebyshev polynomials instead of Lagrange interpolation. Obviously, there are many other possible numerical integration rules not mentioned here.
+3.  The third step amounts to adding such various approximations to obtain a whole integral approximation.
 
-2.  The second step consists of approximating the integrals over the
-    mentioned intervals according to rules like the midpoint rule, the
-    trapezoidal rule or the Simpson’s rule which will be dealt with in
-    the following. Of course, there are many other rules that are not
-    covered in this chapter. For example, the midpoint rule, the
-    trapezoidal rule, and the Simpson’s rule consist of approximating
-    the integrand function by zeroth, first and second-order
-    polynomials, respectively, over the integration sub-intervals of the
-    domain \((a,b)\) by Lagrange interpolation.  
-    Using higher-order polynomial approximations would lead to general
-    Newton-Cotes integration, which will not be covered throughout the
-    present chapter. Another possibility not covered throughout the
-    chapter regards Clenshaw-Curtis or Fejér quadrature using Chebyshev
-    polynomials instead of Lagrange interpolation. Obviously, there are
-    many other possible numerical integration rules not mentioned here.
-
-3.  The third step amounts to adding such various approximations to
-    obtain a whole integral approximation.
-
-Besides dividing the integration domain \((a,b)\) into smaller
-intervals, we mention that other numerical integration rules exist which
-operate differently. For example, Gaussian quadrature consists of
-yielding exact results for integrand functions which are polynomials up
-to a pre-fixed degree or less by a suitable choice of the nodes and
-weights and is often more accurate than Newton-Cotes for smooth
-integrands. Also, adaptive quadratures like the Gauss-Kronrod quadrature
-could be a possibility.  
-Nevertheless, from the parallel programming point of view,
-one-dimensional numerical integration can be dealt with in general as a
-reduction problem of a sequence of samples multiplied by a sequence of
-weights. To convince ourselves that numerical integration is essentially
-a reduction operation, in the next subsection, we will illustrate the
+Besides dividing the integration domain <img src="https://render.githubusercontent.com/render/math?math=(a,b)"> into smaller intervals, we mention that other numerical integration rules exist which operate differently. For example, Gaussian quadrature consists of yielding exact results for integrand functions which are polynomials up
+to a pre-fixed degree or less by a suitable choice of the nodes and weights and is often more accurate than Newton-Cotes for smooth integrands. Also, adaptive quadratures like the Gauss-Kronrod quadrature could be a possibility.  
+Nevertheless, from the parallel programming point of view, one-dimensional numerical integration can be dealt with in general as a reduction problem of a sequence of samples multiplied by a sequence of weights. To convince ourselves that numerical integration is essentially a reduction operation, in the next subsection, we will illustrate the
 so-called *composite midpoint rule*.  
-The following image shows the area subtended by the curve \((x,f(x))\)
-with \(x\in(a,b)\):
+The following image shows the area subtended by the curve <img src="https://render.githubusercontent.com/render/math?math=(x,f(x))"> with <img src="https://render.githubusercontent.com/render/math?math=x\in(a,b)">:
 
-![The integration problem.](/Chapter02/integral.png)
+<p align="center">
+  <img src="integral.jpg" width="400" id="integration">
+  <br>
+     <em>Figure 1. The integration problem.</em>
+</p>
 
-The integral that we are interested in equals the shadowed area and,
-throughout the following sections, we will address techniques aimed at
-approximating such kinds of area.  
-As promised, let’s start with a simple quadrature rule - namely,
-composite midpoint rule. The idea behind this technique is to
-approximate the area subtended by the curve \((x,f(x))\) as a collection
-of rectangles, which is very intuitive and easy to understand. This will
-convince us that a cornerstone of implementing numerical integration in
-CUDA is the capability of performing the summation of a sequence of
-numbers, namely, of performing a *reduction*.
+The integral that we are interested in equals the shadowed area and, throughout the following sections, we will address techniques aimed at approximating such kinds of area.  
+As promised, let’s start with a simple quadrature rule - namely, composite midpoint rule. The idea behind this technique is to approximate the area subtended by the curve <img src="https://render.githubusercontent.com/render/math?math=(x,f(x))"> as a collection of rectangles, which is very intuitive and easy to understand. This will convince us that a cornerstone of implementing numerical integration in CUDA is the capability of performing the summation of a sequence of numbers, namely, of performing a *reduction*.
 
 ### Composite midpoint rule
 
