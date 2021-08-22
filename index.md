@@ -70,73 +70,34 @@ As promised, let’s start with a simple quadrature rule - namely, composite mid
 
 ### Composite midpoint rule
 
-In this subsection, we will shortly discuss the composite midpoint rule.
-Actually, we will not present the CUDA implementation with reusable
-software of the composite midpoint rule: in the present chapter, we will
-prefer to focus on more complicated quadrature rules and the knowledge
-gained on them will put us in a position to easily implement simpler
-integration schemes. Accordingly, composite midpoint rule will serve
-only to break the ice now. Later on, Romberg integration and Simpson’s
-rule, subject of implementations, will be shortly described.  
+In this subsection, we will shortly discuss the composite midpoint rule. Actually, we will not present the CUDA implementation with reusable software of the composite midpoint rule: in the present project, we will prefer to focus on more complicated quadrature rules and the knowledge gained on them will put us in a position to easily implement simpler
+integration schemes. Accordingly, composite midpoint rule will serve only to break the ice now. Later on, Romberg integration and Simpson’s rule, subject of implementations, will be shortly described.  
 The composite midpoint rule is shortly described by the below points.
 
-1.  For a twice differentiable function \(f(x)\), composite midpoint
-    rule consists of subdividing the integration domain \((a,b)\) in
-    \(N+2\) intervals of equal width \(2h\) with \(h=(b-a)/(N+2)\) and
-    \(N\) even, which can be seen in figure [1.2](#midpoint) . The
-    various integration intervals have discretization points
-    \(x_j=a+(j+1)h\), \(j=-1,0,\ldots,N+1\). In each integration
-    interval, the integrand is assumed to be constant and equal to its
-    value at the interval midpoint, namely \(f(x_{2j})\).
+1.  For a twice differentiable function <img src="https://render.githubusercontent.com/render/math?math=f(x)">, composite midpoint rule consists of subdividing the integration domain <img src="https://render.githubusercontent.com/render/math?math=(a,b)"> in <img src="https://render.githubusercontent.com/render/math?math=N+2"> intervals of equal width <img src="https://render.githubusercontent.com/render/math?math=2h"> with <img src="https://render.githubusercontent.com/render/math?math=h=(b-a)/(N+2)"> and <img src="https://render.githubusercontent.com/render/math?math=N"> even, which can be seen in figure [2](#midpoint). The various integration intervals have discretization points <img src="https://render.githubusercontent.com/render/math?math=x_j=a+(j+1)h">, <img src="https://render.githubusercontent.com/render/math?math=j=-1,0,\ldots,N+1">. In each integration interval, the integrand is assumed to be constant and equal to its value at the interval midpoint, namely <img src="https://render.githubusercontent.com/render/math?math=x_j=f(x_{2j})">.
+2.  In this way, <img src="https://render.githubusercontent.com/render/math?math=I"> is approximated as the sum of the areas of <img src="https://render.githubusercontent.com/render/math?math=N/2"> rectangles having bases equal to <img src="https://render.githubusercontent.com/render/math?math=2h"> and heights equal to <img src="https://render.githubusercontent.com/render/math?math=f(x_{2j})">. Consequently, the integral at hand is equal to the following equation: 
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=\underbrace{\int_a^b f(x)dx}_I=\underbrace{2h \sum_{j=0}^{N/2}f(x_{2j})}_{I_{MR}(h)}+\underbrace{\frac{(b-a)}{6}h^2f^{(2)}(\mu)}_{e_{MR}(h)}, \mu\in (a,b)." id="midpointRule">       [3]
+</p>
 
-2.  In this way, \(I\) is approximated as the sum of the areas of
-    \(N/2\) rectangles having bases equal to \(2h\) and heights equal to
-    \(f(x_{2j})\). Consequently, the integral at hand is equal to the
-    following equation : \[\label{midpointRule}
-            \underbrace{\int_a^b f(x)dx}_I=\underbrace{2h \sum_{j=0}^{N/2}f(x_{2j})}_{I_{MR}(h)}+\underbrace{\frac{(b-a)}{6}h^2f^{(2)}(\mu)}_{e_{MR}(h)}, \;\;\mu\in (a,b)\]
+In equation [\[3\]](#midpointRule), <img src="https://render.githubusercontent.com/render/math?math=I_{MR}(h)"> is the numerical approximation of <img src="https://render.githubusercontent.com/render/math?math=I"> according to the composite midpoint rule. The subscript *MR* stands for *midpoint rule* and the dependence on the size <img src="https://render.githubusercontent.com/render/math?math=h"> of the discretization interval has been highlighted in <img src="https://render.githubusercontent.com/render/math?math=I_{MR}(h)">. On the other side, the term <img src="https://render.githubusercontent.com/render/math?math=e_{MR}(h)">   is the error made by approximating <img src="https://render.githubusercontent.com/render/math?math=I"> with <img src="https://render.githubusercontent.com/render/math?math=I_{MR}(h)">. As we can see, the expression of the error term involves the second derivative of <img src="https://render.githubusercontent.com/render/math?math=f">, namely, <img src="https://render.githubusercontent.com/render/math?math=f^{(2)}">, evaluated at a point <img src="https://render.githubusercontent.com/render/math?math=\mu"> of <img src="https://render.githubusercontent.com/render/math?math=(a,b)">.  
+In equation [\[3\]](#midpointRule), the expression of the error term tells us that:
 
-In equation ([\[midpointRule\]](#midpointRule)), \(I_{MR}(h)\) is the
-numerical approximation of \(I\) according to the composite midpoint
-rule. The subscript *MR* stands for *midpoint rule* and the dependence
-on the size \(h\) of the discretization interval has been highlighted in
-\(I_{MR}(h)\). On the other side, the term \(e_{MR}(h)\) is the error
-made by approximating \(I\) with \(I_{MR}(h)\). As we can see, the
-expression of the error term involves the second derivative of \(f\),
-namely, \(f^{(2)}\), evaluated at a point \(\mu\) of \((a,b)\).  
-In equation ([\[midpointRule\]](#midpointRule)), the expression of the
-error term tells us that:
+  - There exists a point <img src="https://render.githubusercontent.com/render/math?math=\mu"> of <img src="https://render.githubusercontent.com/render/math?math=(a,b)"> for which <img src="https://render.githubusercontent.com/render/math?math=e_{MR}(h))=((b-a)/6)h^2f^{(2)}(\mu)">, but it does not tell how to construct <img src="https://render.githubusercontent.com/render/math?math=\mu">.
+  - The error <img src="https://render.githubusercontent.com/render/math?math=e_{MR}(h))"> decreases with <img src="https://render.githubusercontent.com/render/math?math=h"> as <img src="https://render.githubusercontent.com/render/math?math={\mathcal O}(h^2)">.
+  - If the second-order derivative of <img src="https://render.githubusercontent.com/render/math?math=f"> vanishes, then <img src="https://render.githubusercontent.com/render/math?math=I_{MR}(h)"> is an exact evaluation of <img src="https://render.githubusercontent.com/render/math?math=I">; the second-order derivative vanishes for linear functions, namely, for first-order polynomials.  
+    Equation [\[3\]](#midpointRule) reaches the goal that we have set, namely, to convince ourselves that the evaluation of <img src="https://render.githubusercontent.com/render/math?math=I"> amounts to a reduction. In the case of the composite midpoint rule, we need to reduce the elements of <img src="https://render.githubusercontent.com/render/math?math=\lbrace f(x_{2j}) \rbrace_{j=0}^{N/2}"> and multiply them by <img src="https://render.githubusercontent.com/render/math?math=2h">.
 
-  - There exists a point \(\mu\) of \((a,b)\) for which
-    \(e_{MR}(h))=((b-a)/6)h^2f^{(2)}(\mu)\), but it does not tell how to
-    construct \(\mu\).
+Nevertheless, with the knowledge acquired at the end of this project, the interested Reader will be in a position to implement the composite midpoint rule by himself. The following image shows an example for the composite midpoint rule:
 
-  - The error \(e_{MR}(h))\) decreases with \(h\) as
-    \({\mathcal O}(h^2)\).
+<p align="center">
+  <img src="midpoint.jpg" width="400" id="compositeMidpointRule">
+  <br>
+     <em>Figure 2. Composite midpoint rule.</em>
+</p>
 
-  - If the second-order derivative of \(f\) vanishes, then \(I_{MR}(h)\)
-    is an exact evaluation of \(I\); the second-order derivative
-    vanishes for linear functions, namely, for first-order
-    polynomials.  
-    Equation ([\[midpointRule\]](#midpointRule)) reaches the goal that
-    we have set, namely, to convince ourselves that the evaluation of
-    \(I\) amounts to a reduction. In the case of the composite midpoint
-    rule, we need to reduce the elements of
-    \(\lbrace f(x_{2j}) \rbrace_{j=0}^{N/2}\) and multiply them by
-    \(2h\).
-
-Nevertheless, with the knowledge acquired at the end of this chapter,
-the interested Reader will be in a position to implement the composite
-midpoint rule by himself. The following image shows an example for the
-composite midpoint rule:
-
-![Composite midpoint rule.](/Chapter02/midpoint.png)
-
-As it can be seen, over each integration interval, the integrand is
-approximated as a rectangular window whose height equals the value of
-the function at the midpoint of each integration interval.  
-Let us now enter the heart of the implementations by describing the
-composite trapezoidal rule on which our CUDA Romberg integration code is
-based.
+As it can be seen, over each integration interval, the integrand is approximated as a rectangular window whose height equals the value of the function at the midpoint of each integration interval.   
+Let us now enter the heart of the implementations by describing the composite trapezoidal rule on which our CUDA Romberg integration code is based.
 
 ### Composite trapezoidal rule
 
