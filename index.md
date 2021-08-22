@@ -91,7 +91,7 @@ In equation [\[3\]](#midpointRule), the expression of the error term tells us th
 Nevertheless, with the knowledge acquired at the end of this project, the interested Reader will be in a position to implement the composite midpoint rule by himself. The following image shows an example for the composite midpoint rule:
 
 <p align="center">
-  <img src="midpoint.jpg" width="400" id="compositeMidpointRule">
+  <img src="midpoint.png" width="400" id="compositeMidpointRule">
   <br>
      <em>Figure 2. Composite midpoint rule.</em>
 </p>
