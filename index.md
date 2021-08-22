@@ -60,7 +60,7 @@ so-called *composite midpoint rule*.
 The following image shows the area subtended by the curve <img src="https://render.githubusercontent.com/render/math?math=(x,f(x))"> with <img src="https://render.githubusercontent.com/render/math?math=x\in(a,b)">:
 
 <p align="center">
-  <img src="integral.jpg" width="400" id="integration">
+  <img src="integral.png" width="400" id="integration">
   <br>
      <em>Figure 1. The integration problem.</em>
 </p>
