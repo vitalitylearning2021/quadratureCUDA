@@ -101,34 +101,26 @@ Let us now enter the heart of the implementations by describing the composite tr
 
 ### Composite trapezoidal rule
 
-Improvement with respect to the composite midpoint rule is the
-*composite trapezoidal rule*. In the following, the composite
-trapezoidal rule is shortly described.
+Improvement with respect to the composite midpoint rule is the *composite trapezoidal rule*. In the following, the composite trapezoidal rule is shortly described.
 
-1.  It consists again into dividing the integration domain \((a,b)\),
-    this time into \(N\) intervals \((x_{j-1},x_j)\), with
-    \(j=1,\ldots,N\), of width equal to \(h=(b-a)/N\) and with
-    discretization points \(x_j=a+jh\).
+1.  It consists again into dividing the integration domain <img src="https://render.githubusercontent.com/render/math?math=(a,b)">, this time into <img src="https://render.githubusercontent.com/render/math?math=N"> intervals <img src="https://render.githubusercontent.com/render/math?math=(x_{j-1},x_j)">, with <img src="https://render.githubusercontent.com/render/math?math=j=1,\ldots,N">, of width equal to <img src="https://render.githubusercontent.com/render/math?math=h=(b-a)/N"> and with
+    discretization points <img src="https://render.githubusercontent.com/render/math?math=x_j=a %2B jh">.
+2.  However, this time, the integral <img src="https://render.githubusercontent.com/render/math?math=I"> is approximated as the sum of <img src="https://render.githubusercontent.com/render/math?math=N"> trapezoids of height <img src="https://render.githubusercontent.com/render/math?math=h"> and bases <img src="https://render.githubusercontent.com/render/math?math=f(x_{j-1})"> and <img src="https://render.githubusercontent.com/render/math?math=f(x_{j})">, see figure [3](#trapezoidal). In other words,
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=\int_a^b f(x)dx=\frac{h}{2}\left[f(a)+2\sum_{j=1}^{N-1}f(x_j)+f(b)\right]-\frac{(b-a)}{12}h^2f^{(2)}(\mu)=I_{TR}(h)+e_{TR}(h), \mu\in (a,b)." id="trapezoidalRule">       [4]
+</p>
 
-2.  However, this time, the integral \(I\) is approximated as the sum of
-    \(N\) trapezoids of height \(h\) and bases \(f(x_{j-1})\) and
-    \(f(x_{j})\), see figure [1.3](#trapezoidal). In other words,
-    \[\label{trapezoidalRule}
-            \underbrace{\int_a^b f(x)dx}_I=\underbrace{\frac{h}{2}\left[f(a)+2\sum_{j=1}^{N-1}f(x_j)+f(b)\right] }_{I_{TR}(h)}-\underbrace{\frac{(b-a)}{12}h^2f^{(2)}(\mu)}_{e_{TR}(h)}, \;\;\mu\in (a,b)\]
+For the terms <img src="https://render.githubusercontent.com/render/math?math=I_{TR}(h)"> and <img src="https://render.githubusercontent.com/render/math?math=e_{TR}(h)">, similar considerations hold as for <img src="https://render.githubusercontent.com/render/math?math=I_{MR}(h)"> and <img src="https://render.githubusercontent.com/render/math?math=e_{MR}(h)">.  
+Figure [3](#trapezoidal) below illustrates the composite trapezoidal rule:
 
-For the terms \(I_{TR}(h)\) and \(e_{TR}(h)\), similar considerations
-hold as for \(I_{MR}(h)\) and \(e_{MR}(h)\).  
-Figure [1.3](#trapezoidal) below illustrates the composite trapezoidal
-rule:
+<p align="center">
+  <img src="trapezoidal.png" width="400" id="trapezoidal">
+  <br>
+     <em>Figure 3. Composite trapezoidal rule.</em>
+</p>
 
-![Composite trapezoidal rule.](/Chapter02/trapezoidal.png)
-
-The previous image shows that the integral is obtained as the summation
-of the areas of trapezoids which are obtained by linear approximations
-of the integrand within each integration interval.  
-A frequent desire of engineers or scientists is to control the accuracy
-by which the integrals are approximated. Therefore, Romberg integration
-is a worthwhile method to be interested in.
+The previous image shows that the integral is obtained as the summation of the areas of trapezoids which are obtained by linear approximations of the integrand within each integration interval.  
+A frequent desire of engineers or scientists is to control the accuracy by which the integrals are approximated. Therefore, Romberg integration is a worthwhile method to be interested in.
 
 ### Romberg integration
 
