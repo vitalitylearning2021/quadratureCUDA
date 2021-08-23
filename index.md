@@ -138,7 +138,7 @@ We will explore these instructions on a step-by-step basis in the following sect
 When <img src="https://render.githubusercontent.com/render/math?math=f"> is indefinitely derivable with continuous derivatives, then the error term in equation ([\[4\]](#trapezoidalRule)) can be given expression as:
 
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=I=\int_a^b f(x)dx=\frac{h}{2}\left[f(a) %2B 2\sum_{j=1}^{N-1}f(x_j) %2B f(b)\right] %2B K_1h^2 %2B K_2h^3 %2B K_3h^6 %2B \ldots=I_{TR}(h) + e_{TR}(h)," id="trapezoidalRuleRomberg">       [5]
+  <img src="https://render.githubusercontent.com/render/math?math=I=\int_a^b f(x)dx=\frac{h}{2}\left[f(a) %2B 2\sum_{j=1}^{N-1}f(x_j) %2B f(b)\right] %2B K_1h^2 %2B K_2h^3 %2B K_3h^6 %2B \ldots=I_{TR}(h) %2B e_{TR}(h)," id="trapezoidalRuleRomberg">       [5]
 </p>
 
 where <img src="https://render.githubusercontent.com/render/math?math=K_1">, <img src="https://render.githubusercontent.com/render/math?math=K_2">, <img src="https://render.githubusercontent.com/render/math?math=K_3">, <img src="https://render.githubusercontent.com/render/math?math=\ldots">, depend only on the derivatives of <img src="https://render.githubusercontent.com/render/math?math=f"> at <img src="https://render.githubusercontent.com/render/math?math=a"> and <img src="https://render.githubusercontent.com/render/math?math=b">.  
@@ -146,57 +146,42 @@ Now let’s move on to using Richardson’s extrapolation technique.
 
 #### Using Richardson’s extrapolation technique
 
-Romberg integration uses Richardson’s extrapolation which can be
-exploited to improve the accuracy of an approximation once a parametric
-model of the error is known. In our case, the parametric model of the
-error is \(e_{TR}(h)=K_1h^2+K_2h^3+K_3h^6+\ldots\). Richardson’s
-extrapolation does not require to know the coefficients \(K_1\),
-\(K_2\), \(K_3\), \(\ldots\). The following steps schematically describe
-Richardson’s extrapolation technique:
+Romberg integration uses Richardson’s extrapolation which can be exploited to improve the accuracy of an approximation once a parametric model of the error is known. In our case, the parametric model of the error is <img src="https://render.githubusercontent.com/render/math?math=e_{TR}(h)=K_1h^2 %2B K_2h^3 %2B K_3h^6 %2B \ldots">. Richardson’s
+extrapolation does not require to know the coefficients <img src="https://render.githubusercontent.com/render/math?math=K_1">,
+<img src="https://render.githubusercontent.com/render/math?math=K_2">, <img src="https://render.githubusercontent.com/render/math?math=K_3">, <img src="https://render.githubusercontent.com/render/math?math=\ldots">. The following steps schematically describe Richardson’s extrapolation technique:
 
-1.  Let us suppose that an approximation has been obtained for a certain
-    choice of the number \(N\) of discretization intervals. We denote by
-    \(I_{TR_{1}}(h)\) such an approximation for which the further
-    subscript \(1\) stands for the first step of an iterative process.
-    According to equation
-    ([\[trapezoidalRuleRomberg\]](#trapezoidalRuleRomberg)), we have:
+1.  Let us suppose that an approximation has been obtained for a certain choice of the number <img src="https://render.githubusercontent.com/render/math?math=N"> of discretization intervals. We denote by <img src="https://render.githubusercontent.com/render/math?math=I_{TR_{1}}(h)"> such an approximation for which the further subscript <img src="https://render.githubusercontent.com/render/math?math=1"> stands for the first step of an iterative process. According to equation [\[5\]](#trapezoidalRuleRomberg), we have:
     
-    \[\label{iterationRomberg}
-            I=I_{TR_{1}}(h)+K_1h^2+K_2h^4+K_3h^6+\ldots\]
-    
-    Of course, in equation ([\[iterationRomberg\]](#iterationRomberg)),
-    the *step* \(h\) depends on \(N\). From equation
-    ([\[iterationRomberg\]](#iterationRomberg)), it can be seen that
-    \(I_{TR_{1}}\) has an accuracy \({\mathcal O}(h^2)\).
+    <p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=I=I_{TR_{1}}(h) %2B K_1h^2 %2B K_2h^4%2B K_3h^6 %2B \ldots." id="iterationRomberg">       [6]
+    </p>
 
-2.  Let us now assume to double the number of discretization intervals
-    \(N\). This means that the discretization step halves and so:
+    Of course, in equation [\[6\]](#iterationRomberg), the *step* <img src="https://render.githubusercontent.com/render/math?math=h"> depends on <img src="https://render.githubusercontent.com/render/math?math=N">. From equation [\[6\]](#iterationRomberg), it can be seen that <img src="https://render.githubusercontent.com/render/math?math=I_{TR_{1}}"> has an accuracy <img src="https://render.githubusercontent.com/render/math?math={\mathcal O}(h^2)">.
+2.  Let us now assume to double the number of discretization intervals <img src="https://render.githubusercontent.com/render/math?math=N">. This means that the discretization step halves and so:
     
-    \[\label{newIterationRomberg}
-            I=I_{TR_{1}}\left(\frac{h}{2}\right)+K_1\left(\frac{h}{2}\right)^2+K_2\left(\frac{h}{2}\right)^4+K_3\left(\frac{h}{2}\right)^6+\ldots\]
-    
-    After multiplying equation
-    ([\[newIterationRomberg\]](#newIterationRomberg)) by \(4\) and
-    subtracting equation ([\[iterationRomberg\]](#iterationRomberg)),
-    then we have:
-    
-    \[\label{rombergRearrangement}
-            I = \underbrace{I_{TR_{1}}\left(\frac{h}{2}\right)+\frac{1}{3}\left[I_{TR_{1}}\left(\frac{h}{2}\right)-I_{TR_{1}}(h)\right]}_{I_{TR_2}(h)}-\frac{K_2}{4}h^4-\frac{5}{16}K_3h^6+\ldots .\]
-    
-    On regarding \(I_{TR_2}(h)\) as a new approximation of \(I\), then
-    such a new approximation has a better \({\mathcal O}(h^4)\) accuracy
-    than \(I_{TR_{1}}\). It is possible to reiterate Richardson’s
-    extrapolation and applying it to:
-    
-    \[I=I_{TR_2}(h)-\frac{K_2}{4}h^4-\frac{5}{16}K_3h^6+\ldots\]
+    <p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=I=I_{TR_{1}}\left(\frac{h}{2}\right) %2B K_1\left(\frac{h}{2}\right)^2 %2B K_2\left(\frac{h}{2}\right)^4 %2B K_3\left(\frac{h}{2}\right)^6 %2B \ldots." id="newIterationRomberg">       [7]
+    </p>
 
-3.  It can be seen that a new approximation \(I_{TR_3}(h)\) is reached
-    given by:
+    After multiplying equation [\[7\]](#newIterationRomberg) by <img src="https://render.githubusercontent.com/render/math?math=4"> and subtracting equation [\[6\]](#iterationRomberg), then we have:
     
-    \[\label{lastIterationRomberg}
-            I_{TR_3}(h)=I_{TR_2}(h)+\frac{1}{15}\left[I_{TR_2}\left(\frac{h}{2}\right)-I_{TR_2}(h)\right].\]
+    <p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=I =I_{TR_{1}}\left(\frac{h}{2}\right) %2B \frac{1}{3}\left[I_{TR_{1}}\left(\frac{h}{2}\right)-I_{TR_{1}}(h)\right]-\frac{K_2}{4}h^4-\frac{5}{16}K_3h^6 %2B \ldots=I_{TR_2}(h)-\frac{K_2}{4}h^4-\frac{5}{16}K_3h^6 %2B \ldots." id="rombergRearrangement">       [8]
+    </p>
     
-    It has \({\mathcal O}(h^6)\) accuracy.
+    On regarding <img src="https://render.githubusercontent.com/render/math?math=I_{TR_2}(h)"> as a new approximation of <img src="https://render.githubusercontent.com/render/math?math=I">, then such a new approximation has a better <img src="https://render.githubusercontent.com/render/math?math={\mathcal O}(h^4)"> accuracy than <img src="https://render.githubusercontent.com/render/math?math=I_{TR_{1}}">. It is possible to reiterate Richardson’s extrapolation and applying it to:
+    
+    <p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=I=I_{TR_2}(h)-\frac{K_2}{4}h^4-\frac{5}{16}K_3h^6 %2B \ldots." id="rombergRearrangement">       [9]
+    </p>
+
+3.  It can be seen that a new approximation <img src="https://render.githubusercontent.com/render/math?math=I_{TR_3}(h)"> is reached and given by:
+    
+    <p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=I_{TR_3}(h)=I_{TR_2}(h) %2B \frac{1}{15}\left[I_{TR_2}\left(\frac{h}{2}\right)-I_{TR_2}(h)\right]." id="lastIterationRomberg">       [10]
+    </p>
+
+    It has <img src="https://render.githubusercontent.com/render/math?math={\mathcal O}(h^6)"> accuracy.
 
 4.  The process stops when the desired accuracy is achieved.
 
