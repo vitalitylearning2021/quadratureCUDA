@@ -107,7 +107,7 @@ Improvement with respect to the composite midpoint rule is the *composite trapez
     discretization points <img src="https://render.githubusercontent.com/render/math?math=x_j=a %2B jh">.
 2.  However, this time, the integral <img src="https://render.githubusercontent.com/render/math?math=I"> is approximated as the sum of <img src="https://render.githubusercontent.com/render/math?math=N"> trapezoids of height <img src="https://render.githubusercontent.com/render/math?math=h"> and bases <img src="https://render.githubusercontent.com/render/math?math=f(x_{j-1})"> and <img src="https://render.githubusercontent.com/render/math?math=f(x_{j})">, see figure [3](#trapezoidal). In other words,
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=\int_a^b f(x)dx=\frac{h}{2}\left[f(a)+2\sum_{j=1}^{N-1}f(x_j)+f(b)\right]-\frac{(b-a)}{12}h^2f^{(2)}(\mu)=I_{TR}(h)+e_{TR}(h), \mu\in (a,b)." id="trapezoidalRule">       [4]
+  <img src="https://render.githubusercontent.com/render/math?math=\int_a^b f(x)dx=\frac{h}{2}\left[f(a) %2B 2\sum_{j=1}^{N-1}f(x_j) %2B f(b)\right]-\frac{(b-a)}{12}h^2f^{(2)}(\mu)=I_{TR}(h) %2B e_{TR}(h), \mu\in (a,b)." id="trapezoidalRule">       [4]
 </p>
 
 For the terms <img src="https://render.githubusercontent.com/render/math?math=I_{TR}(h)"> and <img src="https://render.githubusercontent.com/render/math?math=e_{TR}(h)">, similar considerations hold as for <img src="https://render.githubusercontent.com/render/math?math=I_{MR}(h)"> and <img src="https://render.githubusercontent.com/render/math?math=e_{MR}(h)">.  
