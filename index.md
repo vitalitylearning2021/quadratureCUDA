@@ -107,7 +107,7 @@ Improvement with respect to the composite midpoint rule is the *composite trapez
     discretization points <img src="https://render.githubusercontent.com/render/math?math=x_j=a %2B jh">.
 2.  However, this time, the integral <img src="https://render.githubusercontent.com/render/math?math=I"> is approximated as the sum of <img src="https://render.githubusercontent.com/render/math?math=N"> trapezoids of height <img src="https://render.githubusercontent.com/render/math?math=h"> and bases <img src="https://render.githubusercontent.com/render/math?math=f(x_{j-1})"> and <img src="https://render.githubusercontent.com/render/math?math=f(x_{j})">, see figure [3](#trapezoidal). In other words,
 <p align="center">
-  <img src="https://render.githubusercontent.com/render/math?math=\int_a^b f(x)dx=\frac{h}{2}\left[f(a) %2B 2\sum_{j=1}^{N-1}f(x_j) %2B f(b)\right]-\frac{(b-a)}{12}h^2f^{(2)}(\mu)=I_{TR}(h) %2B e_{TR}(h), \mu\in (a,b)." id="trapezoidalRule">       [4]
+  <img src="https://render.githubusercontent.com/render/math?math=I=\int_a^b f(x)dx=\frac{h}{2}\left[f(a) %2B 2\sum_{j=1}^{N-1}f(x_j) %2B f(b)\right]-\frac{(b-a)}{12}h^2f^{(2)}(\mu)=I_{TR}(h) %2B e_{TR}(h), \mu\in (a,b)." id="trapezoidalRule">       [4]
 </p>
 
 For the terms <img src="https://render.githubusercontent.com/render/math?math=I_{TR}(h)"> and <img src="https://render.githubusercontent.com/render/math?math=e_{TR}(h)">, similar considerations hold as for <img src="https://render.githubusercontent.com/render/math?math=I_{MR}(h)"> and <img src="https://render.githubusercontent.com/render/math?math=e_{MR}(h)">.  
@@ -124,37 +124,24 @@ A frequent desire of engineers or scientists is to control the accuracy by which
 
 ### Romberg integration
 
-Let us now turn to Romberg integration which is a numerical integration
-scheme very often used in applications thanks to its capability to
-achieve arbitrarily accurate integral estimates. For the sake of
-simplicity, but with no loss in generality, we will discuss Romberg
-integration in connection to composite trapezoidal rule, although it
-could be used in connection to more accurate schemes, as Simpson’s rule
-discussed below.  
-We will lead the description of Romberg integration as the following
-subsequent steps:
+Let us now turn to Romberg integration which is a numerical integration scheme very often used in applications thanks to its capability to achieve arbitrarily accurate integral estimates. For the sake of simplicity, but with no loss in generality, we will discuss Romberg integration in connection to composite trapezoidal rule, although it could be used in connection to more accurate schemes, as Simpson’s rule discussed below.  
+We will lead the description of Romberg integration as the following subsequent steps:
 
 1.  Composite trapezoidal rule and its error term;
-
 2.  Richardson’s extrapolation technique;
+3.  The Romberg scheme applying Richardson’s extrapolation to composite trapezoidal rule.
 
-3.  The Romberg scheme applying Richardson’s extrapolation to composite
-    trapezoidal rule.
-
-We will explore these instructions on a step-by-step basis in the
-following sections.
+We will explore these instructions on a step-by-step basis in the following sections.
 
 #### Deriving composite trapezoidal rule and its error term
 
-When \(f\) is indefinitely derivable with continuous derivatives, then
-the error term in equation ([\[trapezoidalRule\]](#trapezoidalRule)) can
-be given expression as:
+When <img src="https://render.githubusercontent.com/render/math?math=f"> is indefinitely derivable with continuous derivatives, then the error term in equation ([\[4\]](#trapezoidalRule)) can be given expression as:
 
-\[\label{trapezoidalRuleRomberg}
-    \underbrace{\int_a^b f(x)dx}_I=\underbrace{\frac{h}{2}\left[f(a)+2\sum_{j=1}^{N-1}f(x_j)+f(b)\right] }_{I_{TR}(h)}+\underbrace{K_1h^2+K_2h^3+K_3h^6+\ldots}_{e_{TR}(h)},\]
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=I=\int_a^b f(x)dx=\frac{h}{2}\left[f(a) %2B 2\sum_{j=1}^{N-1}f(x_j) %2B f(b)\right] %2B K_1h^2 %2B K_2h^3 %2B K_3h^6 %2B \ldots=I_{TR}(h) + e_{TR}(h)," id="trapezoidalRuleRomberg">       [5]
+</p>
 
-where \(K_1\), \(K_2\), \(K_3\), \(\ldots\), depend only on the
-derivatives of \(f\) at \(a\) and \(b\).  
+where <img src="https://render.githubusercontent.com/render/math?math=K_1">, <img src="https://render.githubusercontent.com/render/math?math=K_2">, <img src="https://render.githubusercontent.com/render/math?math=K_3">, <img src="https://render.githubusercontent.com/render/math?math=\ldots">, depend only on the derivatives of <img src="https://render.githubusercontent.com/render/math?math=f"> at <img src="https://render.githubusercontent.com/render/math?math=a"> and <img src="https://render.githubusercontent.com/render/math?math=b">.  
 Now let’s move on to using Richardson’s extrapolation technique.
 
 #### Using Richardson’s extrapolation technique
