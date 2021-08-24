@@ -243,53 +243,35 @@ For this reason, composite Simpson’s rule will be the subject of the next sect
 
 ### Composite Simpson’s rule
 
-Finally, let us illustrate the composite Simpson’s rule, namely, the
-second and last integration scheme for one-dimensional functions that we
-will use in the implementations and that represents an improvement as
-compared to the composite midpoint and trapezoidal rules.  
+Finally, let us illustrate the composite Simpson’s rule, namely, the second and last integration scheme for one-dimensional functions that we will use in the implementations and that represents an improvement as compared to the composite midpoint and trapezoidal rules.   
 The following points describe composite Simpson’s rule:
 
-1.  Composite Simpson’s rule consists of discretizing the interval
-    \((a,b)\) at the \(N\) points \(x_j=a+jh\), \(j=0,1,\ldots,N-1\).
-    Assuming \(N\) even, then, in each interval \((x_{2j-2},x_{2j})\),
-    \(j=1,\ldots,N/2\), function \(f(x)\) is approximated by a
-    second-order polynomial as in figure [1.6](#compositeSimpson), that
-    is:
+1.  Composite Simpson’s rule consists of discretizing the interval <img src="https://render.githubusercontent.com/render/math?math=(a,b)"> at the <img src="https://render.githubusercontent.com/render/math?math=N"> points <img src="https://render.githubusercontent.com/render/math?math=x_j=a %2B jh">, <img src="https://render.githubusercontent.com/render/math?math=x_j=j=0,1,\ldots,N-1">. Assuming <img src="https://render.githubusercontent.com/render/math?math=N"> even, then, in each interval <img src="https://render.githubusercontent.com/render/math?math=(x_{2j-2},x_{2j})">, <img src="https://render.githubusercontent.com/render/math?math=j=1,\ldots,N/2">, function <img src="https://render.githubusercontent.com/render/math?math=f(x)"> is approximated by a second-order polynomial as in figure [6](#compositeSimpson), that is:
     
-    \[f(x)\simeq p_j(x)=A_jx^2+B_jx+C_j, \;\; x\in (x_{2j-2},x_{2j});\]
+    <p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=f(x)\simeq p_j(x)=A_jx^2 %2B B_jx %2B C_j, x\in (x_{2j-2},x_{2j});">       [16]
+    </p>
 
 2.  As a result, we have:
     
-    \[\label{compositeSimpsonRule}
-        \underbrace{\int_a^b f(x)dx}_{I}=\underbrace{\frac{h}{3}\left[f(a)+2\sum_{j=1}^{N/2-1}f(x_{2j})+4\sum_{j=1}^{N/2}f(x_{2j-1})+f(b)\right]}_{I_{SR}(h)}-\underbrace{\frac{(b-a)}{180}h^4f^{(4)}(\mu)}_{e_{SR}(h)},\;\; \mu\in (a,b),\]
+    <p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=I=\int_a^b f(x)dx=\frac{h}{3}\left[f(a) %2B 2\sum_{j=1}^{N/2-1}f(x_{2j}) %2B 4\sum_{j=1}^{N/2}f(x_{2j-1}) %2B f(b)\right]-\frac{(b-a)}{180}h^4f^{(4)}(\mu)=I_{SR}(h) %2B e_{SR}(h), \mu\in (a,b)," id="compositeSimpsonRule">       [17]
+    </p>
     
-    where \(I_{SR}(h)\) is the Simpson’s rule approximation of the
-    integral and \(e_{SR}(h)\) is the related error; two points are
-    worth to be underlined: \(e_{SR}(h)\) decreases with \(h\) as
-    \({\mathcal O}(h^4)\); if the fourth-order derivative of \(f\)
-    vanishes, then \(I_{SR}(h)\) is an exact evaluation of \(I\); the
-    second-order derivative vanishes for polynomials up to the third
-    order; accordingly, accuracy is improved as compared to the
-    composite midpoint and trapezoidal rules.
+    where <img src="https://render.githubusercontent.com/render/math?math=I_{SR}(h)"> is the Simpson’s rule approximation of the integral and <img src="https://render.githubusercontent.com/render/math?math=e_{SR}(h)"> is the related error; two points are worth to be underlined: <img src="https://render.githubusercontent.com/render/math?math=e_{SR}(h)"> decreases with <img src="https://render.githubusercontent.com/render/math?math=h"> as <img src="https://render.githubusercontent.com/render/math?math={\mathcal O}(h^4)">; if the fourth-order derivative of <img src="https://render.githubusercontent.com/render/math?math=f"> vanishes, then <img src="https://render.githubusercontent.com/render/math?math=I_{SR}(h)"> is an exact evaluation of <img src="https://render.githubusercontent.com/render/math?math=I">; the second-order derivative vanishes for polynomials up to the third order; accordingly, accuracy is improved as compared to the composite midpoint and trapezoidal rules.
 
-The following figure [1.6](#compositeSimpson) illustrates composite
-Simpson’s rule:
+The following figure [6](#compositeSimpson) illustrates composite Simpson’s rule:
 
-![Composite Simpson’s rule.](/Chapter02/compositeSimpson.png)
+<p align="center">
+  <img src="compositeSimpson.png" width="400" id="compositeSimpson">
+  <br>
+     <em>Figure 6. Composite Simpson’s rule.</em>
+</p>
 
-Figure [1.6](#compositeSimpson) highlights that, in each integration
-interval, the integrand is approximated by a quadratic function.  
-If we compare the above figure with figure [1.3](#trapezoidal), we can
-understand that composite Simpson’s rule amounts to the integrand
-function with a smoother approximation which is the reason for the
-better accuracy. Many routines of the CUDA ecosystem make parallel
-reduction routines available. Of course, the specific implementation
-changes from case to case, but the underlying philosophy stays roughly
-the same.  
-In the next section, we will look at parallel reduction and illustrate
-such philosophy because it is always recommendable to have some
-knowledge of what is inside the routines, avoiding to use them as black
-boxes.
+Figure [6](#compositeSimpson) highlights that, in each integration interval, the integrand is approximated by a quadratic function.  
+If we compare the above figure with figure [3](#trapezoidal), we can understand that composite Simpson’s rule amounts to the integrand function with a smoother approximation which is the reason for the better accuracy. Many routines of the CUDA ecosystem make parallel reduction routines available. Of course, the specific implementation
+changes from case to case, but the underlying philosophy stays roughly the same.  
+In the next section, we will look at parallel reduction and illustrate such philosophy because it is always recommendable to have some knowledge of what is inside the routines, avoiding to use them as black boxes.
 
 ## Theory: Parallel reduction
 
