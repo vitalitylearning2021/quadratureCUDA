@@ -187,78 +187,59 @@ extrapolation does not require to know the coefficients <img src="https://render
 
 #### The Romberg scheme for the composite trapezoidal rule
 
-More concretely from the codeic point of view, Romberg integration is an
-iterative process using composite trapezoidal rule, in our case, for
-different values of \(N\) as \(N=1,2,4,8,16,\ldots,2^{k_{max}}\), where
-\(k_{max}\) is the maximum number of iterations of the approach and
-dictates the final accuracy. The approach proceeds by building up a
-lower triangular matrix \(R_{k,j}\) with \(k,j=1,\ldots,k_{max}\) and
-\(j\leq k\). In a preliminary step, the entire first column \(R_{k,1}\),
-\(k=1,\ldots,k_{max}\) is computed, see figure [1.4](#romberg).  
-The generic term \(R_{k,1}\) corresponds to the approximation in
-equation ([\[trapezoidalRuleRomberg\]](#trapezoidalRuleRomberg))
-obtained by applying the composite trapezoidal rule to the case of
-\(N=2^{k_{max}}\) discretization steps. In other words:
+More concretely from the codeic point of view, Romberg integration is an iterative process using composite trapezoidal rule, in our case, for different values of <img src="https://render.githubusercontent.com/render/math?math=N"> as <img src="https://render.githubusercontent.com/render/math?math=N=1,2,4,8,16,\ldots,2^{k_{max}}">, where <img src="https://render.githubusercontent.com/render/math?math=k_{max}"> is the maximum number of iterations of the approach and dictates the final accuracy. The approach proceeds by building up a lower triangular matrix <img src="https://render.githubusercontent.com/render/math?math=R_{k,j}"> with <img src="https://render.githubusercontent.com/render/math?math=k,j=1,\ldots,k_{max}"> and <img src="https://render.githubusercontent.com/render/math?math=j\leq k">. In a preliminary step, the entire first column <img src="https://render.githubusercontent.com/render/math?math=R_{k,1}">, <img src="https://render.githubusercontent.com/render/math?math=k=1,\ldots,k_{max}"> is computed, see figure [4](#romberg).  
+The generic term <img src="https://render.githubusercontent.com/render/math?math=R_{k,1}"> corresponds to the approximation in equation [\[5\]](#trapezoidalRuleRomberg)
+obtained by applying the composite trapezoidal rule to the case of <img src="https://render.githubusercontent.com/render/math?math=N=2^{k_{max}}"> discretization steps. In other words:
 
-\[\label{firstColumnRomberg}
-R_{k,1} = \frac{h}{2}\left[f(a)+2\sum_{j=1}^{2^k-1}f(x_j)+f(b)\right]\]
+<p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=R_{k,1} = \frac{h}{2}\left[f(a)+2\sum_{j=1}^{2^k-1}f(x_j)+f(b)\right]." id="firstColumnRomberg">       [11]
+</p>
+    
+Then, Romberg integration proceeds according to figure [4](#romberg). In particular, starting from <img src="https://render.githubusercontent.com/render/math?math=R_{1,1}"> and <img src="https://render.githubusercontent.com/render/math?math=R_{2,1}">, a better approximation is constructed according to equation [\[8\]](#rombergRearrangement). Such a new
+approximation is denoted by <img src="https://render.githubusercontent.com/render/math?math=R_{2,2}"> and equals:
 
-Then, Romberg integration proceeds according to figure [1.4](#romberg).
-In particular, starting from \(R_{1,1}\) and \(R_{2,1}\), a better
-approximation is constructed according to equation
-([\[rombergRearrangement\]](#rombergRearrangement)). Such a new
-approximation is denoted by \(R_{2,2}\) and equals:
+<p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=R_{2,2}=R_{2,1}+\frac{1}{3}\left[R_{2,1}-R_{1,1}\right].">       [12]
+</p>
 
-\[R_{2,2}=R_{2,1}+\frac{1}{3}\left[R_{2,1}-R_{1,1}\right]\]
+Later on, starting from <img src="https://render.githubusercontent.com/render/math?math=R_{3,1}"> and <img src="https://render.githubusercontent.com/render/math?math=R_{2,1}">, and again following equation [\[8\]](#rombergRearrangement), an improved approximation, denoted by <img src="https://render.githubusercontent.com/render/math?math=R_{3,2}">, is set up, namely:
 
-Later on, starting from \(R_{3,1}\) and \(R_{2,1}\), and again following
-equation ([\[rombergRearrangement\]](#rombergRearrangement)), an
-improved approximation, denoted by \(R_{3,2}\), is set up, namely:
+<p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=R_{3,2}=R_{3,1}+\frac{1}{3}\left[R_{3,1}-R_{2,1}\right].">       [13]
+</p>
 
-\[R_{3,2}=R_{3,1}+\frac{1}{3}\left[R_{3,1}-R_{2,1}\right].\]
+Furthermore, starting from <img src="https://render.githubusercontent.com/render/math?math=R_{3,2}"> and <img src="https://render.githubusercontent.com/render/math?math=R_{2,2}">  and according to equation [\[10\]](#lastIterationRomberg), a better approximation is build-up, namely:
 
-Furthermore, starting from \(R_{3,2}\) and \(R_{2,2}\) and according to
-equation ([\[lastIterationRomberg\]](#lastIterationRomberg)), a better
-approximation is build-up, namely:
+<p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=R_{3,3}=R_{3,2}+\frac{1}{15}\left[R_{3,2}-R_{2,2}\right].">       [14]
+</p>
 
-\[R_{3,3}=R_{3,2}+\frac{1}{15}\left[R_{3,2}-R_{2,2}\right].\]
+In general, the term <img src="https://render.githubusercontent.com/render/math?math=R_{k,j}">, with <img src="https://render.githubusercontent.com/render/math?math=k=j,j+1,\ldots,k_{max}">, is provided by:
 
-In general, the term \(R_{k,j}\), with \(k=j,j+1,\ldots,k_{max}\), is
-provided by:
+<p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=R_{k,j}=R_{k,j-1}+\frac{1}{4^{j-1}}\left[R_{k,j-1}-R_{k-1,j-1}\right]." id="genericTermRomberg">       [15]
+</p>
 
-\[\label{genericTermRomberg}
-R_{k,j}=R_{k,j-1}+\frac{1}{4^{j-1}}\left[R_{k,j-1}-R_{k-1,j-1}\right].\]
+Figure [4](#romberg) illustrates the first column of the Romberg matrix whose generic element is <img src="https://render.githubusercontent.com/render/math?math=R_{k,j}">:
 
-Figure [1.4](#romberg) illustrates the first column of the Romberg
-matrix whose generic element is \(R_{k,j}\):
+<p align="center">
+  <img src="romberg.png" width="400" id="romberg">
+  <br>
+     <em>Figure 4. Illustrating the first step of Romberg
+integration.</em>
+</p>
 
-![Illustrating the first step of Romberg
-integration.](/Chapter02/romberg.png)
+The previous figure [4](#romberg) shows the refinement process of the integral calculation by the composite trapezoidal rule when the integration domain is divided into an increasing number of intervals. Furthermore, the Romberg iterations of equations [\[11\]](#firstColumnRomberg)-[\[15\]](#genericTermRomberg) are summarized in figure [5](#rombergIterations):
 
-The previous figure [1.4](#romberg) shows the refinement process of the
-integral calculation by the composite trapezoidal rule when the
-integration domain is divided into an increasing number of intervals.
-Furthermore, the Romberg iterations of equations
-([\[firstColumnRomberg\]](#firstColumnRomberg))-([\[genericTermRomberg\]](#genericTermRomberg))
-are summarized in figure [1.5](#rombergIterations):
+<p align="center">
+  <img src="rombergIterations.png" width="400" id="rombergIterations">
+  <br>
+     <em>Figure 5. Romberg iterations.</em>
+</p>
 
-![Romberg iterations.](/Chapter02/rombergIterations.png)
-
-As it can be seen, Romberg iterations construct a lower triangular
-matrix.  
-Having the Romberg integration scheme available is useful from the
-application point of view and can be satisfactory in a large number of
-cases. It is an iterative method and the programming part related to
-CUDA can be easily implemented as we will see shortly. However, in some
-cases, avoiding iterative techniques can be preferable, so that, to
-achieve a satisfactory accuracy, higher-order polynomial approximations
-of the integrand function, as used by composite Simpson’s rule, can be
-needed.  
-For this reason, composite Simpson’s rule will be the subject of the
-next section. Moreover, the implementation part related to CUDA exhibits
-some more complexities as compared to the Romberg scheme, so that
-composite Simpson’s rule enables us to highlight some programming points
-which can be also of general interest.
+As it can be seen, Romberg iterations construct a lower triangular matrix.  
+Having the Romberg integration scheme available is useful from the application point of view and can be satisfactory in a large number of cases. It is an iterative method and the programming part related to CUDA can be easily implemented as we will see shortly. However, in some cases, avoiding iterative techniques can be preferable, so that, to achieve a satisfactory accuracy, higher-order polynomial approximations of the integrand function, as used by composite Simpson’s rule, can be needed.  
+For this reason, composite Simpson’s rule will be the subject of the next section. Moreover, the implementation part related to CUDA exhibits some more complexities as compared to the Romberg scheme, so that composite Simpson’s rule enables us to highlight some programming points which can be also of general interest.
 
 ### Composite Simpson’s rule
 
