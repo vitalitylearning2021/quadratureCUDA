@@ -275,112 +275,40 @@ In the next section, we will look at parallel reduction and illustrate such phil
 
 ## Theory: Parallel reduction
 
-In this section, we sketch general guidelines, typically followed by
-libraries like Thrust, CUB or ModernGPU, to perform the parallel
-summation of \(N\) numbers. Thrust, CUB, and ModernGPU are the libraries
-we will use below and are perhaps the most widely employed by CUDA
-programmers. Thrust is the highest level among the three since it hides
-almost completely the underlying implementation under an abstraction
-layer.  
-It has been molded according to the C++ STL library and works both for
-GPUs and for multi-core CPUs. CUB and Modern GPU are more low level and
-do not hide the underlying program structure. CUB is intended to
-optimize performance while Modern GPU to maximize readability and
-editability.  
-The sum of \(N\) numbers is called *a reduction* since it *reduces*
-\(N\) elements to a solitary one, namely, the result of the summation.  
-The reduction may appear at a first glance an intrinsically sequential
-operation. On a sequential machine, it would be trivially implemented by
-a `for` loop in which, iteration by iteration, the current element is
-summed up to an accumulator. Fortunately, the reduction is amenable to a
-parallel implementation by exploiting a common codeic scheme known as
-*divide et impera* or *divide and conquer*. The divide et impera
-technique consists of three steps:
+In this section, we sketch general guidelines, typically followed by libraries like Thrust, CUB or ModernGPU, to perform the parallel summation of <img src="https://render.githubusercontent.com/render/math?math=N"> numbers. Thrust, CUB, and ModernGPU are the libraries we will use below and are perhaps the most widely employed by CUDA programmers. Thrust is the highest level among the three since it hides almost completely the underlying implementation under an abstraction layer.  
+It has been molded according to the C++ STL library and works both for GPUs and for multi-core CPUs. CUB and Modern GPU are more low level and do not hide the underlying program structure. CUB is intended to optimize performance while Modern GPU to maximize readability and editability.  
+The sum of <img src="https://render.githubusercontent.com/render/math?math=N"> numbers is called *a reduction* since it *reduces* <img src="https://render.githubusercontent.com/render/math?math=N"> elements to a solitary one, namely, the result of the summation.  
+The reduction may appear at a first glance an intrinsically sequential operation. On a sequential machine, it would be trivially implemented by a `for` loop in which, iteration by iteration, the current element is summed up to an accumulator. Fortunately, the reduction is amenable to a parallel implementation by exploiting a common codeic scheme known as *divide et impera* or *divide and conquer*. The divide et impera technique consists of three steps:
 
-1.  recursively dividing the original problem into smaller subproblems
-    of the same type until a certain minimum size is reached;
-
+1.  recursively dividing the original problem into smaller subproblems of the same type until a certain minimum size is reached;
 2.  solving the subproblems obtaining partial solutions;
+3.  combining the partial solutions to achieve the solution of the original problem.
 
-3.  combining the partial solutions to achieve the solution of the
-    original problem.
+The divide et impera scheme is applied when the complexity of obtaining the partial solutions and recombining them is less than that of solving the whole problem at once.  
+The parallel reduction is illustrated in figure [7](#parallelReduction) below and can be thought of as built up in different steps:
 
-The divide et impera scheme is applied when the complexity of obtaining
-the partial solutions and recombining them is less than that of solving
-the whole problem at once.  
-The parallel reduction is illustrated in figure
-[1.7](#parallelReduction) below and can be thought of as built up in
-different steps:
+<p align="center">
+  <img src="reduction.png" width="400" id="parallelReduction">
+  <br>
+     <em>Figure 7. Parallel reduction.</em>
+</p>
 
-![Parallel reduction.](/Chapter02/reduction.png)
-
-On referring to figure 7, let us assume, for the sake of illustration,
-that \(N=2^n\), namely, that \(N\) is a power of \(2\). The first two
+On referring to figure [7](#parallelReduction), let us assume, for the sake of illustration, that <img src="https://render.githubusercontent.com/render/math?math=N=2^n">, namely, that <img src="https://render.githubusercontent.com/render/math?math=N"> is a power of <img src="https://render.githubusercontent.com/render/math?math=2">. The first two
 steps are detailed further.
 
-1.  In the first step, \(N/2\) threads operate. Each thread takes over
-    \(2\) consecutive elements of the sequence to be reduced, adds them
-    up and temporarily stores them in one of the available memories of
-    the GPU, as the global memory or the shared memory. In this way, at
-    the end of the first step, a new *partially reduced* sequence is
-    created whose length is \(N/2\) and for which each element is the
-    result of the summation of \(2\) elements of the original sequence.
+1.  In the first step, <img src="https://render.githubusercontent.com/render/math?math=N/2"> threads operate. Each thread takes over <img src="https://render.githubusercontent.com/render/math?math=2"> consecutive elements of the sequence to be reduced, adds them up and temporarily stores them in one of the available memories of the GPU, as the global memory or the shared memory. In this way, at the end of the first step, a new *partially reduced* sequence is created whose length is <img src="https://render.githubusercontent.com/render/math?math=N/2"> and for which each element is the result of the summation of <img src="https://render.githubusercontent.com/render/math?math=2"> elements of the original sequence.
+2.  In the second step, <img src="https://render.githubusercontent.com/render/math?math=N/2"> threads operate. As for the first step, each thread takes over <img src="https://render.githubusercontent.com/render/math?math=2"> consecutive elements of the new sequence of <img src="https://render.githubusercontent.com/render/math?math=N/2"> elements, adds them up and temporarily stores them again in one of the available memories of the GPU (global or shared).
 
-2.  In the second step, \(N/4\) threads operate. As for the first step,
-    each thread takes over \(2\) consecutive elements of the new
-    sequence of \(N/2\) elements, adds them up and temporarily stores
-    them again in one of the available memories of the GPU (global or
-    shared).
-
-Iterating this approach, it can be understood that the number of
-required steps drops from the \(N\) needed in the sequential case to
-\(N\log_2 N\) of the parallel case. If, ideally, each step requires a
-clock cycle, then the large speedup attainable in the parallel case as
-compared to the sequential one can be figured out.  
+Iterating this approach, it can be understood that the number of required steps drops from the <img src="https://render.githubusercontent.com/render/math?math=N"> needed in the sequential case to <img src="https://render.githubusercontent.com/render/math?math=N\log_2 N"> of the parallel case. If, ideally, each step requires a clock cycle, then the large speedup attainable in the parallel case as compared to the sequential one can be figured out.   
 Two key points of this scheme should be pointed out:
 
-  - The first point regards the fact that the threads should collaborate
-    with each other. *Collaboration* means that the threads should be
-    able to share the results of the intermediate sums attained step by
-    step. More in detail, the intermediate results should be temporarily
-    stored so that they can be recovered by the threads at the following
-    step. A first candidate memory to this purpose is *global memory*.
-    Of course, such a choice would be non-performing due to the
-    “slowness” of global memory, being it *off-chip*. Among the
-    *on-chip* memories, which are to be preferred since they are faster,
-    one could choose *registers* which are the fastest storage units
-    available on a GPU. Unfortunately, the visibility of registers is
-    *per-thread* or, at most, *per-warp*, thanks to mechanisms, like
-    *shuffle operations*, enabling the sharing of data among threads
-    belonging to the same warp. An intermediate solution between global
-    memory and registers is *shared memory* which is still an on-chip
-    memory, and so faster than global memory, but somewhat slower than
-    registers. Shared memory has the merit of being accessible by all
-    the threads in a thread block. Details on the features of shared
-    memory will be given in chapter 8.
+  - The first point regards the fact that the threads should collaborate with each other. *Collaboration* means that the threads should be able to share the results of the intermediate sums attained step by step. More in detail, the intermediate results should be temporarily stored so that they can be recovered by the threads at the following
+    step. A first candidate memory to this purpose is *global memory*. Of course, such a choice would be non-performing due to the “slowness” of global memory, being it *off-chip*. Among the *on-chip* memories, which are to be preferred since they are faster, one could choose *registers* which are the fastest storage units available on a GPU. Unfortunately, the visibility of registers is *per-thread* or, at most, *per-warp*, thanks to mechanisms, like *shuffle operations*, enabling the sharing of data among threads
+    belonging to the same warp. An intermediate solution between global memory and registers is *shared memory* which is still an on-chip memory, and so faster than global memory, but somewhat slower than registers. Shared memory has the merit of being accessible by all the threads in a thread block. 
+  - The second key point concerns the organization of threads in blocks. Such an organization is purposely performed to enable collaboration among threads. According to what underlined with reference to the need for “temporary” memories, a parallel reduction code can be devised by appointing each thread block the task of reducing a subset of elements whose number corresponds to the number of active threads in the block.
 
-  - The second key point concerns the organization of threads in blocks.
-    Such an organization is purposely performed to enable collaboration
-    among threads. According to what underlined with reference to the
-    need for “temporary” memories, a parallel reduction code can be
-    devised by appointing each thread block the task of reducing a
-    subset of elements whose number corresponds to the number of active
-    threads in the block.
-
-Later on, the results of the block summations can be further reduced by
-a single thread of the block, typically the thread with index 0, using
-atomic operations and accumulating the result in a global memory
-location. With this *per-block* reduction, shared memory can be used to
-load the data from global memory at the first reduction step or to store
-intermediate results at the subsequent steps. When the number of active
-threads becomes equal or less than those of a warp, then registers and
-shuffle operations come into play.  
-Details on handcrafted optimized parallel reduction schemes in CUDA can
-be found in . As it can be seen, the use of libraries hides away the
-implementation details, thus simplifying the reduction in CUDA.  
-In the next section, we will learn how implementing Romberg integration
-with Thrust and composite Simpson’s rule with Thrust, CUB, and
-ModernGPU.
+Later on, the results of the block summations can be further reduced by a single thread of the block, typically the thread with index `0`, using atomic operations and accumulating the result in a global memory location. With this *per-block* reduction, shared memory can be used to load the data from global memory at the first reduction step or to store intermediate results at the subsequent steps. When the number of active threads becomes equal or less than those of a warp, then registers and shuffle operations come into play.  
+As it can be seen, the use of libraries hides away the implementation details, thus simplifying the reduction in CUDA. In the next section, we will learn how implementing Romberg integration with Thrust and composite Simpson’s rule with Thrust, CUB, and ModernGPU.
 
 ## Practice: one-dimensional integration with reusable software
 
