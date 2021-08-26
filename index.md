@@ -312,125 +312,69 @@ As it can be seen, the use of libraries hides away the implementation details, t
 
 ## Practice: one-dimensional integration with reusable software
 
-Initially, Thrust will be used to implement both Romberg integration and
-composite Simpson’s rule. Later on, CUB and ModernGPU will be exploited
-to implement the composite Simpson’s rule as well. The use of each
-library will be premised with a short description of the library
-itself.  
-In all the below examples, the computation of the following integral
-will be considered:
+Initially, Thrust will be used to implement both Romberg integration and composite Simpson’s rule. Later on, CUB and ModernGPU will be exploited to implement the composite Simpson’s rule as well. The use of each library will be premised with a short description of the library itself.  
+In all the below examples, the computation of the following integral will be considered:
 
-\[\int_{0.5}^1 \sin(2\pi x)dx.\]
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=\int_{0.5}^1 \sin(2\pi x)dx.">       [18]
+</p>
 
-Moreover, single-precision computations will be dealt with. Of course,
-the presented codes could be easily customized to enable the computation
-of other one-dimensional integrals, possibly in double precision.  
+Moreover, single-precision computations will be dealt with. Of course, the presented codes could be easily customized to enable the computation of other one-dimensional integrals, possibly in double precision.  
 Let us understand Thrust next.
 
 ### Thrust
 
-Thrust  is the parallel analog of the C++ Standard Template Library
-(STL). Programmers being familiar with C++ STL will have no difficulty
-in using Thrust since the syntax of the latter faithfully retraces that
-of the former.  
-Thrust enables high productivity in writing CUDA codes since many
-complex operations like *reduce*, *scan*, *conditional copies*, and so
-on are rendered with a single, simple call. Thrust abstracts all the
-underlying implementation details of those complex operations, including
-the parameters influencing the code optimization, as, for example, the
-launch grid. Thrust, indeed, performs a transparent tuning of the code
-while guaranteeing the portability across different GPU architectures.  
-Thrust is an *include-only*, or *header-only*, library that is shipped
-with CUDA and requires no extra installation. It is also
-*architecture-agnostic* which means that the same code can be executed
-on a multi-core CPU or a GPU without any main special adaptation.  
-We will now understand Thrust implementation using both Romberg
-integration and composite Simpson’s rules.
+Thrust is the parallel analog of the C++ Standard Template Library (STL). Programmers being familiar with C++ STL will have no difficulty in using Thrust since the syntax of the latter faithfully retraces that of the former.  
+Thrust enables high productivity in writing CUDA codes since many complex operations like *reduce*, *scan*, *conditional copies*, and so on are rendered with a single, simple call. Thrust abstracts all the underlying implementation details of those complex operations, including the parameters influencing the code optimization, as, for example, the
+launch grid. Thrust, indeed, performs a transparent tuning of the code while guaranteeing the portability across different GPU architectures.  
+Thrust is an *include-only*, or *header-only*, library that is shipped with CUDA and requires no extra installation. It is also *architecture-agnostic* which means that the same code can be executed on a multi-core CPU or a GPU without any main special adaptation.  
+We will now understand Thrust implementation using both Romberg integration and composite Simpson’s rules.
 
 #### Using Romberg integration with Thrust
 
-In order to implement Romberg’s technique with Thrust, we need the steps
-which are illustrated below:
+In order to implement Romberg’s technique with Thrust, we need the steps which are illustrated below:
 
-1.  We define the problem parameters, namely, the extremes of
-    integration `a` and `b` as well as the maximum number of iterations
-    `Kmax`. This is done by the following lines:
-    
+1.  We define the problem parameters, namely, the extremes of integration `a` and `b` as well as the maximum number of iterations `Kmax`. This is done by the following lines:
     ``` c++
     float a = 0.5f;
         float b = 1.f;
         int Kmax = 5;
     ```
-
-2.  We allocate memory space for Romberg’s matrix `R`. Notice that such
-    space is allocated *on the host* by:
-    
+2.  We allocate memory space for Romberg’s matrix `R`. Notice that such space is allocated *on the host* by:
     ``` c++
     thrust::host_vector<float> R(Kmax * Kmax, 1.f);
     ```
-    
     Later on, we need two `for` loops.
-
-3.  The first `for` loop computes the first column of Romberg’s matrix,
-    namely, the integrals \(R_{k,1}\), \(k=1,\ldots,k_{max}\). This is
-    the only part where the use of GPU intervenes in the present
-    example. Within this `for` loop, the discretization step `h` and the
-    number of discretization points `N` are defined as:
-    
+3.  The first `for` loop computes the first column of Romberg’s matrix, namely, the integrals \(R_{k,1}\), \(k=1,\ldots,k_{max}\). This is the only part where the use of GPU intervenes in the present example. Within this `for` loop, the discretization step `h` and the number of discretization points `N` are defined as:
     ``` c++
     float h = (b - a) / pow(2.f, k + 1);
         int N = (int)((b - a) / h) + 1;
     ```
-    
-    Moreover, memory space, this time on the GPU, is allocated for the
-    \(N\) discretization points \(x_j\) by the following line:
-    
+    Moreover, memory space, this time on the GPU, is allocated for the <img src="https://render.githubusercontent.com/render/math?math=N"> discretization points <img src="https://render.githubusercontent.com/render/math?math=x_j"> by the following line:
     ``` c++
     thrust::device_vector<float> d_x(N);
     ```
-    
     Then we invoke the following line:
-    
     ``` c++
     thrust::sequence(d_x.begin(), d_x.end(), a, h);
     ```
-    
-    It enables afterward to compute the discretization points as a
-    sequence of \(N\) values starting from a and incremented with a step
-    equal to `h`. Following the computation of the discretization
-    points, space for the samples \(f(x_j)\) is allocated in the vector
-    `d_y` by:
-    
+    It enables afterwards to compute the discretization points as a sequence of <img src="https://render.githubusercontent.com/render/math?math=N"> values starting from a and incremented with a step equal to `h`. Following the computation of the discretization points, space for the samples <img src="https://render.githubusercontent.com/render/math?math=f(x_j)"> is allocated in the vector `d_y` by:
     ``` c++
     thrust::device_vector<float> d_y(N);
     ```
-    
-    To cope with the use of Thrust, the integrand function is defined by
-    a proper functor:
-    
+    To cope with the use of Thrust, the integrand function is defined by a proper functor:
     ``` c++
     struct sin_functor {__host__ __device__ float operator()(float x)
             const { return sin(2.f * pi_f * x); } };
     ```
-    
-    The samples \(f(x_j)\) are obtained by performing a transformation
-    of the discretization points `d_y` by using the mentioned functor:
-    
+    The samples <img src="https://render.githubusercontent.com/render/math?math=f(x_j)"> are obtained by performing a transformation of the discretization points `d_y` by using the mentioned functor:
     ``` c++
     thrust::transform(d_x.begin(), d_x.end(), d_y.begin(), 
             sin_functor());
     ```
-    
-    The elements of matrix \(R_{k,1}\) are finally obtained, according
-    to equation ([\[firstColumnRomberg\]](#firstColumnRomberg)), by
-    performing a reduction by exploiting `thrust::reduce`. It should be
-    noticed that `thrust::reduce` returns a host memory result, which is
-    consistent with the fact that the matrix `R` is allocated on the
-    host.
-
-4.  Following these operations on the GPU, the elements of Romberg’s
-    matrix are computed on the host according to equation
-    ([\[genericTermRomberg\]](#genericTermRomberg)) in a second `for`
+    The elements of matrix <img src="https://render.githubusercontent.com/render/math?math=R_{k,1}"> are finally obtained, according to equation [\[11\]](#firstColumnRomberg), by
+    performing a reduction by exploiting `thrust::reduce`. It should be noticed that `thrust::reduce` returns a host memory result, which is consistent with the fact that the matrix `R` is allocated on the host.
+4.  Following these operations on the GPU, the elements of Romberg’s matrix are computed on the host according to equation [\[15\]](#genericTermRomberg) in a second `for`
     loop.
 
 The code implementing Romberg’s technique with Thrust is shown below:
@@ -491,11 +435,7 @@ int main() {
     return 0;}
 ```
 
-We need two nested `for` loops to implement the computations in equation
-([\[genericTermRomberg\]](#genericTermRomberg)): the outer loop sweeps
-the rows, while the inner one sweeps the columns of the Romberg matrix.
-Since such a matrix is lower triangular, the outer loop runs `k` from
-`1` to `Kmax-1`, while the inner one runs `j` from `1` to `k`.  
+We need two nested `for` loops to implement the computations in equation [\[15\]](#genericTermRomberg): the outer loop sweeps the rows, while the inner one sweeps the columns of the Romberg matrix. Since such a matrix is lower triangular, the outer loop runs `k` from `1` to `Kmax-1`, while the inner one runs `j` from `1` to `k`.  
 We now move to composite Simpon’s rule integration with Thrust.
 
 #### Using Composite Simpson’s rule with Thrust
