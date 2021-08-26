@@ -345,7 +345,7 @@ In order to implement Romberg’s technique with Thrust, we need the steps which
     thrust::host_vector<float> R(Kmax * Kmax, 1.f);
     ```
     Later on, we need two `for` loops.
-3.  The first `for` loop computes the first column of Romberg’s matrix, namely, the integrals \(R_{k,1}\), \(k=1,\ldots,k_{max}\). This is the only part where the use of GPU intervenes in the present example. Within this `for` loop, the discretization step `h` and the number of discretization points `N` are defined as:
+3.  The first `for` loop computes the first column of Romberg’s matrix, namely, the integrals <img src="https://render.githubusercontent.com/render/math?math=R_{k,1}">, <img src="https://render.githubusercontent.com/render/math?math=k=1,\ldots,k_{max}">. This is the only part where the use of GPU intervenes in the present example. Within this `for` loop, the discretization step `h` and the number of discretization points `N` are defined as:
     ``` c++
     float h = (b - a) / pow(2.f, k + 1);
         int N = (int)((b - a) / h) + 1;
