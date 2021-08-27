@@ -434,6 +434,9 @@ int main() {
     printf("The integral is %f\n", R[Kmax * Kmax - 1]);
     return 0;}
 ```
+<p align="center" id="rombergThrust" >
+     <em>Listing 1. Romberg integration with Thrust.</em>
+</p>
 
 We need two nested `for` loops to implement the computations in equation [\[15\]](#genericTermRomberg): the outer loop sweeps the rows, while the inner one sweeps the columns of the Romberg matrix. Since such a matrix is lower triangular, the outer loop runs `k` from `1` to `Kmax-1`, while the inner one runs `j` from `1` to `k`.  
 We now move to composite Simpon’s rule integration with Thrust.
@@ -660,6 +663,9 @@ int main() {
     printf("The integral is %f\n", integral);
     return 0; }
 ```
+<p align="center" id="compositeSimpsonThrust" >
+     <em>Listing 2. Composite Simpson's rule with Thrust.</em>
+</p>
 
 As it can be seen, the code is articulated according to the steps detailed below.  
 
