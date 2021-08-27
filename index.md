@@ -440,34 +440,27 @@ We now move to composite Simpon’s rule integration with Thrust.
 
 #### Using Composite Simpson’s rule with Thrust
 
-Some parts of composite Simpson’s rule implementation with Thrust are
-common to Listing [\[rombergThrust\]](#rombergThrust) and will not be
-repeated here. One of those examples is the integrand function which is
-still defined by means of a functor. Differently than before, now the
-number of integration nodes `N` is fixed by the user.  
-The peculiar thing here is that, according to equation
-([\[compositeSimpsonRule\]](#compositeSimpsonRule)), from the
-programming point of view, composite Simpson’s rule essentially consists
+Some parts of composite Simpson’s rule implementation with Thrust are common to Listing [1](#rombergThrust) and will not be repeated here. One of those examples is the integrand function which is still defined by means of a functor. Differently than before, now the number of integration nodes `N` is fixed by the user.  
+The peculiar thing here is that, according to equation [\[17\]](#compositeSimpsonRule), from the programming point of view, composite Simpson’s rule essentially consists
 of the reduction of the sequence:
 
-\[\label{sequenceToReduce}
-\lbrace f(x_0), 4f(x_1), 2f(x_2), 4f(x_3), 2f(x_4),\ldots, 4f(x_{2j-1}),2f(x_{2j}), \ldots, f(x_{N-1})\rbrace.\]
+<p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=\lbrace f(x_0), 4f(x_1), 2f(x_2), 4f(x_3), 2f(x_4),\ldots, 4f(x_{2j-1}),2f(x_{2j}), \ldots, f(x_{N-1})\rbrace." id="sequenceToReduce">       [19]
+</p>
 
-The sequence can be obtained by an elementwise multiplication of the
-sequence
+The sequence can be obtained by an elementwise multiplication of the sequence
 
-\[\label{coefficientsSequence}
-\lbrace 1,4,2,4,2,\ldots,4,2,\ldots,1\rbrace\]
+<p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=\lbrace 1,4,2,4,2,\ldots,4,2,\ldots,1\rbrace" id="coefficientsSequence">       [20]
+</p>
 
 by the sequence
 
-\[\label{samplesSequence}
-\lbrace f(x_0),f(x_1),f(x_2),f(x_3),f(x_4),\ldots,f(x_{2j-1}),f(x_{2j}), \ldots, f(x_{N-1})\rbrace.\]
+<p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=\lbrace f(x_0),f(x_1),f(x_2),f(x_3),f(x_4),\ldots,f(x_{2j-1}),f(x_{2j}), \ldots, f(x_{N-1})\rbrace." id="samplesSequence">       [21]
+</p>
 
-The sequence \(\lbrace 1,4,2,4,2,\ldots,4,2,\ldots,1\rbrace\) requires
-the generation of an alternated sequence of \(4\)’s and \(2\)’s, apart
-from the first and last elements that are \(1\)’s, which can be achieved
-by the `steppedRangeClass` class .  
+The sequence <img src="https://render.githubusercontent.com/render/math?math=\lbrace 1,4,2,4,2,\ldots,4,2,\ldots,1\rbrace"> requires the generation of an alternated sequence of <img src="https://render.githubusercontent.com/render/math?math=4">’s and <img src="https://render.githubusercontent.com/render/math?math=2">’s, apart from the first and last elements that are <img src="https://render.githubusercontent.com/render/math?math=1">’s, which can be achieved by the `steppedRangeClass` class.  
 The first part of the `steppedRangeClass` class code is reported below:
 
 ``` c++
@@ -502,15 +495,13 @@ typedef typename thrust::permutation_iterator<templateIterator,
 typedef permutationIteratorStep it;
 ```
 
-It implements a purposely designed permutation iterator, obtained by
-using
+It implements a purposely designed permutation iterator, obtained by using
 
 ``` c++
 thrust::permutation_iterator
 ```
 
-The `relevantFunctor` functor provides the appropriate indices of
-permutation.  
+The `relevantFunctor` functor provides the appropriate indices of permutation.  
 The second part of the `steppedRangeClass` class code is reported below:
 
 ``` c++
@@ -531,9 +522,7 @@ protected:
     differenceIteratorType step; };
 ```
 
-The `steppedRangeClass` class exploits three iterators, those are, one
-for the first element (`firstElement`), one for the last element
-(`lastElement`), and one for the step (`step`).  
+The `steppedRangeClass` class exploits three iterators, those are, one for the first element (`firstElement`), one for the last element (`lastElement`), and one for the step (`step`).  
 First, space for the alternated sequence is allocated as:
 
 ``` c++
@@ -555,19 +544,9 @@ The above snippets use the
 typedef thrust::device_vector<float>::iterator templateIterator
 ```
 
-iterator. Iterators provide a means for accessing data stored in
-container classes, a `thrust::device_vector<float>` in the case of our
-interest. In general, one can think of an iterator as pointing to an
-item that is part of a larger container of items.  
-The former access every two elements of `d_coefficients` starting from
-the second element up to the last-but-two element with a stride equal to
-`STRIDE` and the latter accesses every two elements of `d_coefficients`
-starting from the third element up to the last-but-one element, again
-with a stride equal to `STRIDE`. `STRIDE` is obviously defined equal to
-\(2\).  
-Both do not have access to the last element of the sequence of the
-coefficients. `d_coefficients` is then filled in by two separate calls
-to `thrust::fill` as:
+iterator. Iterators provide a means for accessing data stored in container classes, a `thrust::device_vector<float>` in the case of our interest. In general, one can think of an iterator as pointing to an item that is part of a larger container of items.  
+The former access every two elements of `d_coefficients` starting from the second element up to the last-but-two element with a stride equal to `STRIDE` and the latter accesses every two elements of `d_coefficients` starting from the third element up to the last-but-one element, again with a stride equal to `STRIDE`. `STRIDE` is obviously defined equal to <img src="https://render.githubusercontent.com/render/math?math=2">.  
+Both do not have access to the last element of the sequence of the coefficients. `d_coefficients` is then filled in by two separate calls to `thrust::fill` as:
 
 ``` c++
 thrust::fill(pos1.begin(), pos1.end(), h_coefficients[0]);
@@ -581,35 +560,22 @@ h_coefficients[0] = 4.f;
 h_coefficients[1] = 2.f;
 ```
 
-Thus, the positions accessed by `pos1` are filled by a \(4\), while
-those accessed by `pos2` are filled with a \(2\). The first and last
-element of `d_coefficients` are separately filled with \(1\)’s as:
+Thus, the positions accessed by `pos1` are filled by a <img src="https://render.githubusercontent.com/render/math?math=4">, while those accessed by `pos2` are filled with a <img src="https://render.githubusercontent.com/render/math?math=2">. The first and last element of `d_coefficients` are separately filled with \(1\)’s as:
 
 ``` c++
 d_coefficients[0] = 1.f;
 d_coefficients[N - 1] = 1.f;
 ```
 
-It should be observed that the separate filling of the first and last
-elements is ineffective since it requires the consumption of the memory
-bandwidth to transfer only individual elements. Actually, also the
-separate filling of the \(4\)’s and \(2\)’s elements could be performed
-more effectively by using CUDA kernels. Nevertheless, it has been
-preferable to proceed in a somewhat less effective way because it gives
-the opportunity to illustrate more features of Thrust.  
-Concerning the generation of ([\[samplesSequence\]](#samplesSequence)),
-first the sampling step `h` and the sampling points vector `d_x` are
-defined as:
+It should be observed that the separate filling of the first and last elements is ineffective since it requires the consumption of the memory bandwidth to transfer only individual elements. Actually, also the separate filling of the <img src="https://render.githubusercontent.com/render/math?math=4">’s and <img src="https://render.githubusercontent.com/render/math?math=2">’s elements could be performed more effectively by using CUDA kernels. Nevertheless, it has been preferable to proceed in a somewhat less effective way because it gives the opportunity to illustrate more features of Thrust.  
+Concerning the generation of [\[21\]](#samplesSequence), first the sampling step `h` and the sampling points vector `d_x` are defined as:
 
 ``` c++
 float h = (b - a) / (float)(N - 1);
 thrust::device_vector<float> d_x(N);
 ```
 
-The last part of the code regards the generation of the discretization
-points `d_x`. For the sake of illustration, this is performed in a
-different way as compared to Listing [\[rombergThrust\]](#rombergThrust)
-as:
+The last part of the code regards the generation of the discretization points `d_x`. For the sake of illustration, this is performed in a different way as compared to Listing [1](#rombergThrust) as:
 
 ``` c++
 thrust::transform(thrust::make_counting_iterator(a / h),
@@ -619,28 +585,16 @@ thrust::transform(thrust::make_counting_iterator(a / h),
     thrust::multiplies<float>());
 ```
 
-Indeed, a transformation is performed, by invoking `thrust::transform`,
-of an implicit sequence obtained by counting iterators and a constant
-iterator, whose values range from `a/h` to `b/h` and are multiplied by
-the discretization step `h`, thanks to the presence of
-`thrust::multiplies<float>()`.  
-Then, the sequence ([\[samplesSequence\]](#samplesSequence)) is obtained
-by a `thrust::transform` as for Listing
-[\[rombergThrust\]](#rombergThrust).  
-Finally, the value of the integral is obtained as the scalar product
-between the two sequences
-([\[coefficientsSequence\]](#coefficientsSequence)) and
-([\[samplesSequence\]](#samplesSequence)) by `thrust::inner_product` as:
+Indeed, a transformation is performed, by invoking `thrust::transform`, of an implicit sequence obtained by counting iterators and a constant iterator, whose values range from `a/h` to `b/h` and are multiplied by the discretization step `h`, thanks to the presence of `thrust::multiplies<float>()`.  
+Then, the sequence [\[21\]](#samplesSequence) is obtained by a `thrust::transform` as for Listing [1](#rombergThrust).  
+Finally, the value of the integral is obtained as the scalar product between the two sequences [\[20\]](#coefficientsSequence) and [\[21\]](#samplesSequence) by `thrust::inner_product` as:
 
 ``` c++
 float integral = (h / 3.f) * thrust::inner_product(d_y.begin(),
     d_y.begin() + N, d_coefficients.begin(), 0.0f);
 ```
 
-For convenience, the full code implementing composite Simpson’s rule
-using Thrust is reported in Listing
-[\[compositeSimpsonThrust\]](#compositeSimpsonThrust), except for the
-`steppedRangeClass` class.
+For convenience, the full code implementing composite Simpson’s rule using Thrust is reported in Listing [2](#compositeSimpsonThrust), except for the `steppedRangeClass` class.
 
 ``` c++
 #include <thrust/inner_product.h>
@@ -707,35 +661,17 @@ int main() {
     return 0; }
 ```
 
-As it can be seen, the code is articulated according to the steps
-detailed below.  
+As it can be seen, the code is articulated according to the steps detailed below.  
 
 1.  The first step concerns the definition of the integration domain.
-
 2.  In the second step, we define the number of integration nodes.
+3.  Then, we generate the two integration coefficients needed by the numerical integration scheme.
+4.  Following the generation of the integration coefficients, the vector of integration weights is constructed out of them by using the `steppedRangeClass` class and `thrust::fill` and by separately setting the first and last coefficients, as detailed above.
+5.  At this point, it is required to generate the sampling points by using `thrust::transform, thrust::make_counting_iterator` and `thrust::make_constant_iterator`, as detailed above.
+6.  After the generation of the sampling points, the function samples are calculated by `thrust::transform`.
+7.  The final step consists of the calculation of the integral by a reduction performed using `thrust::inner_product`, as detailed above.
 
-3.  Then, we generate the two integration coefficients needed by the
-    numerical integration scheme.
-
-4.  Following the generation of the integration coefficients, the vector
-    of integration weights is constructed out of them by using the
-    `steppedRangeClass` class and `thrust::fill` and by separately
-    setting the first and last coefficients, as detailed above.
-
-5.  At this point, it is required to generate the sampling points by
-    using `thrust::transform, thrust::make_counting_iterator` and
-    `thrust::make_constant_iterator`, as detailed above.
-
-6.  After the generation of the sampling points, the function samples
-    are calculated by `thrust::transform`.
-
-7.  The final step consists of the calculation of the integral by a
-    reduction performed using `thrust::inner_product`, as detailed
-    above.
-
-In the next section, we will learn how the same operations in Listing
-[\[compositeSimpsonThrust\]](#compositeSimpsonThrust) performed with
-Thrust can be implemented with CUB.
+In the next section, we will learn how the same operations in Listing [2](#compositeSimpsonThrust) performed with Thrust can be implemented with CUB.
 
 ### CUB
 
