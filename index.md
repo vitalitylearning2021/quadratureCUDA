@@ -792,7 +792,7 @@ int main(){
     CubDebugExit(cudaPeekAtLastError());
     CubDebugExit(cudaDeviceSynchronize());
 ```
-<p align="center" id="Listing3" >
+<p align="center" id="compositeCUBDevice" >
      <em>Listing 3. Composite Simpson's rule with CUB's device-wide primitives - Part 1.</em>
 </p>
 
@@ -820,7 +820,7 @@ float h_s;
 CubDebugExit(cudaMemcpy(&h_s, d_s, sizeof(float), cudaMemcpyDeviceToHost));
 printf("The integral is %f\n", h_s); }
 ```
-<p align="center" id="Listing4" >
+<p align="center" id="compositeCUBDevice_part2" >
      <em>Listing 4. Composite Simpson's rule with CUB's device-wide primitives - Part 2.</em>
 </p>
 
@@ -833,21 +833,12 @@ We will now see CUB’s block-wide primitives.
 
 #### Composite Simpson’s rule using CUB’s block-wide primitives
 
-Let us now discuss the primary aspects of CUB by illustrating the three
-key points of the implementation of the composite Simpson’s rule using
-block-wide primitives.
+Let us now discuss the primary aspects of CUB by illustrating the three key points of the implementation of the composite Simpson’s rule using block-wide primitives.
 
-1.  *Sequence to be reduced.* Differently from before, now the reduction
-    is performed from within the same kernel computing the sequence
-    ([\[compositeCUB\]](#compositeCUB)) to be reduced.
-
-2.  *Generation of the sequence to be reduced.* The implementation of
-    composite Simpson’s rule using CUB’s block-wide primitives is
-    similar to that in Listing
-    [\[compositeCUBDevice\_part2\]](#compositeCUBDevice_part2).  
-    The `reparationKernel()` kernel function of Listing
-    [\[compositeCUBDevice\_part2\]](#compositeCUBDevice_part2) is
-    changed with `blockReductionKernel()`, and reported below:
+1.  *Sequence to be reduced.* Differently from before, now the reduction is performed from within the same kernel computing the sequence
+    [\[22\]](#compositeCUB) to be reduced.
+2.  *Generation of the sequence to be reduced.* The implementation of composite Simpson’s rule using CUB’s block-wide primitives is similar to that in Listing
+    [4](#compositeCUBDevice_part2). The `reparationKernel()` kernel function of Listing [4](#compositeCUBDevice_part2) is changed with `blockReductionKernel()`, and reported below:
     
     ``` c++
     __global__ void blockReductionKernel(float * __restrict__ d_s,
@@ -882,34 +873,12 @@ block-wide primitives.
         return;}
     ```
     
-    The first part of `blockReductionKernel()` is very similar to
-    `preparationKernel()`. Indeed, as done previously, the first step is
-    to evaluate the values of the sequence
-    ([\[compositeCUB\]](#compositeCUB)), one element per thread, and to
-    store them in the register variables `val`. Following the evaluation
-    of sequence to reduce, the use of a block-wide reduction code is
-    specified by using `cub::BlockReduce`. In this way, each block will
-    perform a parallel reduction of the sequence values to be reduced
-    and stored in the `val` registers.  
-    The involved sequence values will be those computed by the thread
-    belonging to the block at hand. Later on, the thread with thread
-    index `threadIdx.x == 0` of each block will be in charge of updating
-    the result in the global memory location pointed to by `d_s`. The
-    same parallel reduction philosophy sketched above (see figure
-    [1.7](#parallelReduction)) is in this way carried out.  
-    In the call to `cub::BlockReduce`, we need to specify the involved
-    data type (`float`), the number of threads per block (`BLOCKSIZE`)
-    and the kind of block reduction code. In the above kernel function,
-    the `cub::BLOCK_REDUCE_RAKING_COMMUTATIVE_ONLY` is used, which is
-    valid when the reduction operator is commutative, as the sum for the
-    case we are dealing with.  
-    As for the previous device-wide case, also in the above kernel
-    function, temporary storage is needed. However, in this case,
-    temporary storage occurs, transparently to the user, by exploiting
-    shared memory.  
-    The full code, except for the `blockReductionKernel()` function, is
-    illustrated in Listing
-    [\[compositeCUBDeviceOverall\]](#compositeCUBDeviceOverall) below:
+    The first part of `blockReductionKernel()` is very similar to `preparationKernel()`. Indeed, as done previously, the first step is to evaluate the values of the sequence
+    [\[22\]](#compositeCUB), one element per thread, and to store them in the register variables `val`. Following the evaluation of sequence to reduce, the use of a block-wide reduction code is specified by using `cub::BlockReduce`. In this way, each block will perform a parallel reduction of the sequence values to be reduced and stored in the `val` registers.  
+    The involved sequence values will be those computed by the thread belonging to the block at hand. Later on, the thread with thread index `threadIdx.x == 0` of each block will be in charge of updating the result in the global memory location pointed to by `d_s`. The same parallel reduction philosophy sketched above (see figure [7](#parallelReduction)) is in this way carried out.  
+    In the call to `cub::BlockReduce`, we need to specify the involved data type (`float`), the number of threads per block (`BLOCKSIZE`) and the kind of block reduction code. In the above kernel function, the `cub::BLOCK_REDUCE_RAKING_COMMUTATIVE_ONLY` is used, which is valid when the reduction operator is commutative, as the sum for the case we are dealing with.  
+    As for the previous device-wide case, also in the above kernel function, temporary storage is needed. However, in this case, temporary storage occurs, transparently to the user, by exploiting shared memory.  
+    The full code, except for the `blockReductionKernel()` function, is illustrated in Listing [5](#compositeCUBDeviceOverall) below:
     
     ``` c++
     #include <iostream>
@@ -952,41 +921,26 @@ block-wide primitives.
         cudaMemcpyDeviceToHost));
         printf("The integral is %f\n", h_s); }
     ```
+<p align="center" id="compositeCUBDeviceOverall" >
+     <em>Listing 5. Composite Simpson's rule with CUB's block-wide primitives.</em>
+</p>
 
-Concerning the `main()` function, please notice that all the operations
-preceding the call to the `blockReductionKernel()` kernel function are
-analogous to those in Listings
-[\[compositeCUBDevice\]](#compositeCUBDevice) and
-[\[compositeCUBDevice\_part2\]](#compositeCUBDevice_part2). In
-particular, the steps of Listing
-[\[compositeCUBDeviceOverall\]](#compositeCUBDeviceOverall) are detailed
+Concerning the `main()` function, please notice that all the operations preceding the call to the `blockReductionKernel()` kernel function are analogous to those in Listings
+[3](#compositeCUBDevice) and [4](#compositeCUBDevice_part2). In particular, the steps of Listing [5](#compositeCUBDeviceOverall) are detailed
 below.
 
 1.  The first step concerns the definition of the integration domain.
-
 2.  In the second step, we define the number of integration nodes.
-
 3.  Next, we define the size of the integration sub-intervals.
-
-4.  The fourth step consists of the allocation of device space for the
-    integration result.
-
-5.  After the fourth step, the simultaneous sequence generation and
-    reduction by the
-    
+4.  The fourth step consists of the allocation of device space for the integration result.
+5.  After the fourth step, the simultaneous sequence generation and reduction by the
     ``` c++
     blockReductionKernel
     ```
-    
     kernel are performed.
+6.  Following the previous step, the integration result is stored on the device. Accordingly, we need to copy the integration result from the device to the host.
 
-6.  Following the previous step, the integration result is stored on the
-    device. Accordingly, we need to copy the integration result from the
-    device to the host.
-
-In the next Subsection, we will see how the above schemes can be
-performed by using another library, namely, ModernGPU, which is similar
-in concept to CUB, but more didactical to be used.
+In the next Subsection, we will see how the above schemes can be performed by using another library, namely, ModernGPU, which is similar in concept to CUB, but more didactical to be used.
 
 ### ModernGPU
 
