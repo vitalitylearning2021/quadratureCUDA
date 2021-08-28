@@ -681,58 +681,27 @@ In the next section, we will learn how the same operations in Listing [2](#compo
 
 ### CUB
 
-CUB  stands for CUDA Unbound and, as Thrust, is an include-only library
-providing state-of-the-art reusable software including primitives like
-reduce, scan, sort, and so on.  
-As seen before, Thrust provides high performing, device-wide software in
-a “rigid, high-level” format, abstracting all the details of the
-underlying architecture as well as the optimization particulars.  
-On the other hand, CUB has both high-level and low-level capabilities.
-Indeed, it provides both device-wide primitives, in a fashion similar to
-Thrust, and warp-wide and block-wide, *collective* primitives. Warp-wide
-and block-wide primitives enable cooperation among the threads of a warp
-or of a block to perform, for example, partial reductions at a warp or a
-block level.  
-The need for such partial reduction operations has arisen in a previous
-section when the philosophy behind parallel reduction has been sketched.
-Moreover, CUB offers a whole bunch of plugs by which it is possible to
-touch up the parameters of such primitives to manually perform
-fine-tuning depending on the needs and on the underlying architecture.  
-Finally, although Thrust offers primitives whose syntax is independent
-of the underlying architecture, CUB calls are CUDA-specific.  
-In the following sections, we will see how CUB primitives can be
-employed both in their device-wide or block-wide versions to implement
-composite Simpson’s rule.
+CUB stands for CUDA Unbound and, as Thrust, is an include-only library providing state-of-the-art reusable software including primitives like reduce, scan, sort, and so on.  
+As seen before, Thrust provides high performing, device-wide software in a “rigid, high-level” format, abstracting all the details of the underlying architecture as well as the optimization particulars.  
+On the other hand, CUB has both high-level and low-level capabilities. Indeed, it provides both device-wide primitives, in a fashion similar to Thrust, and warp-wide and block-wide, *collective* primitives. Warp-wide and block-wide primitives enable cooperation among the threads of a warp or of a block to perform, for example, partial reductions at a warp or a block level.  
+The need for such partial reduction operations has arisen in a previous section when the philosophy behind parallel reduction has been sketched. Moreover, CUB offers a whole bunch of plugs by which it is possible to touch up the parameters of such primitives to manually perform fine-tuning depending on the needs and on the underlying architecture.  
+Finally, although Thrust offers primitives whose syntax is independent of the underlying architecture, CUB calls are CUDA-specific.  
+In the following sections, we will see how CUB primitives can be employed both in their device-wide or block-wide versions to implement composite Simpson’s rule.
 
 #### Composite Simpson’s rule using CUB’s device-wide primitives
 
-The general idea of implementing composite Simpson’s rule using CUB’s
-device-wide primitives is computing the sequence to be reduced
+The general idea of implementing composite Simpson’s rule using CUB’s device-wide primitives is computing the sequence to be reduced
 
-\[\label{compositeCUB}
-\lbrace \frac{h}{3}f(x_0), \frac{h}{3} 4f(x_1), \frac{h}{3} 2f(x_2),\ldots, \frac{h}{3} 4f(x_{2j-1}),\frac{h}{3} 2f(x_{2j}),\ldots,\frac{h}{3}f(x_N)\rbrace\]
+<p align="center">
+  <img src="https://render.githubusercontent.com/render/math?math=\lbrace \frac{h}{3}f(x_0), \frac{h}{3} 4f(x_1), \frac{h}{3} 2f(x_2),\ldots, \frac{h}{3} 4f(x_{2j-1}),\frac{h}{3} 2f(x_{2j}),\ldots,\frac{h}{3}f(x_N)\rbrace" id="compositeCUB">       [22]
+</p>
+    
+with a CUDA kernel and reducing it by invoking a CUB’s library routine.  
+As for Listing [2](#compositeSimpsonThrust) seen above, the first preparatory steps of the present implementation concern the definition of the integration extremes, the number of discretization points, the discretization step and the allocation of the global memory space for the array `d_f` to be reduced. So, these steps will be no further commented since they are almost the same as for Listing [2](#compositeSimpsonThrust) and have been already discussed. Let us just notice that we are no more using `d_y`, but `d_f` instead. This is because, in the previous codes, `d_y` contained only the function samples, while, now, `d_f` will contain the full sequence [\[22\]](#compositeCUB).  
+The main differences in the implementation we are discussing and Listing [2](#compositeSimpsonThrust) are:
 
-with a CUDA kernel and reducing it by invoking a CUB’s library
-routine.  
-As for Listing [\[compositeSimpsonThrust\]](#compositeSimpsonThrust)
-seen above, the first preparatory steps of the present implementation
-concern the definition of the integration extremes, the number of
-discretization points, the discretization step and the allocation of the
-global memory space for the array `d_f` to be reduced. So, these steps
-will be no further commented since they are almost the same as for
-Listing [\[compositeSimpsonThrust\]](#compositeSimpsonThrust) and have
-been already discussed. Let us just notice that we are no more using
-`d_y`, but `d_f` instead. This is because, in the previous codes, `d_y`
-contained only the function samples, while, now, `d_f` will contain the
-full sequence ([\[compositeCUB\]](#compositeCUB)).  
-The main differences in the implementation we are discussing and Listing
-[\[compositeSimpsonThrust\]](#compositeSimpsonThrust) are:
-
-  - The presence of the `preparationKernel()` customized CUDA kernel,
-    reported below, having the purpose of computing the sequence to be
-    reduced according to equation
-    ([\[compositeSimpsonRule\]](#compositeSimpsonRule)), namely; the
-    code below reports the `preparationKernel()` function:
+  - The presence of the `preparationKernel()` customized CUDA kernel, reported below, having the purpose of computing the sequence to be reduced according to equation
+    [\[17\]](#compositeSimpsonRule), namely; the code below reports the `preparationKernel()` function:
     
     ``` c++
     __global__ void preparationKernel(float * __restrict__ d_f, const
@@ -754,37 +723,23 @@ The main differences in the implementation we are discussing and Listing
         d_f[tidx] = (h / 3.f) * coeff * sin(2.f * pi_f * x);}
     ```
     
-    In the `preparationKernel()` kernel, each thread is in charge of
-    computing a different element of the sequence
-    ([\[compositeCUB\]](#compositeCUB)). In particular, each thread
-    first checks if the thread ID is even or odd, so that `coeff` is set
-    to `2` or `4`. If the thread ID corresponds to the first or last
-    element of the sequence, then `coeff` is set to `1`. Finally, the
-    sequence element is computed according to the integrand value at the
-    corresponding sample location `x`.
+    In the `preparationKernel()` kernel, each thread is in charge of computing a different element of the sequence [\[22\]](#compositeCUB). In particular, each thread first checks if the thread ID is even or odd, so that `coeff` is set to `2` or `4`. If the thread ID corresponds to the first or last element of the sequence, then `coeff` is set to `1`. Finally, the sequence element is computed according to the integrand value at the corresponding sample location `x`.
 
-  - The integrand function is hard-wired in the customized CUDA kernel
-    above, but, of course, more elegant solutions are possible.  
-    Essentially, the code consists of invoking the `preparationKernel()`
-    kernel function as:
+  - The integrand function is hard-wired in the customized CUDA kernel above, but, of course, more elegant solutions are possible. Essentially, the code consists of invoking the `preparationKernel()` kernel function as:
     
     ``` c++
     preparationKernel << <iDivUp(N, BLOCKSIZE), BLOCKSIZE >> >
         (d_f, a, h, N);
     ```
     
-    Following the `preparationKernel()` invocation, global memory space
-    for a single `float` is allocated as:
+    Following the `preparationKernel()` invocation, global memory space for a single `float` is allocated as:
     
     ``` c++
     float *d_s; CubDebugExit(cudaMalloc(&d_s, sizeof(float)));
     ```
     
-    This is needed since, differently from Thrust, CUB returns a
-    reduction result stored on the device, rather than on the host.  
-    It is now time to reduce the sequence
-    ([\[compositeCUB\]](#compositeCUB)). This is achieved using
-    `cub::DeviceReduce::Sum`
+    This is needed since, differently from Thrust, CUB returns a reduction result stored on the device, rather than on the host.  
+    It is now time to reduce the sequence [\[22\]](#compositeCUB). This is achieved using `cub::DeviceReduce::Sum`
     
     ``` c++
     float *d_temp_storage = nullptr;
@@ -792,27 +747,12 @@ The main differences in the implementation we are discussing and Listing
         d_f, d_s, N);
     ```
     
-    Actually, such a function is invoked twice, once to determine the
-    amount of global memory storage required from the inside of CUB’s
-    reduction routine and once to work out the real reduction. The
-    global memory area responsible for the temporary storage is pointed
-    to by `d_temp_storage` which needs to be initialized to `null`. In
-    such a way, the primitive `cub::DeviceReduce::Sum` knows that the
-    first call is the preliminary one so that it returns the number of
-    bytes needed by the temporary storage in `temp_storage_bytes`.
+    Actually, such a function is invoked twice, once to determine the amount of global memory storage required from the inside of CUB’s reduction routine and once to work out the real reduction. The global memory area responsible for the temporary storage is pointed to by `d_temp_storage` which needs to be initialized to `null`. In such a way, the primitive `cub::DeviceReduce::Sum` knows that the first call is the preliminary one so that it returns the number of bytes needed by the temporary storage in `temp_storage_bytes`.
 
-Following the allocation of the temporary storage by the first call to
-`cub::DeviceReduce::Sum`, the subsequent call to
-`cub::DeviceReduce::Sum` will use `temp_storage_bytes` and
+Following the allocation of the temporary storage by the first call to `cub::DeviceReduce::Sum`, the subsequent call to `cub::DeviceReduce::Sum` will use `temp_storage_bytes` and
 `d_temp_storage` as inputs.  
-Finally, the reduction result is copied to the host. For convenience,
-Listing [\[compositeCUBDevice\]](#compositeCUBDevice) is next reported
-(except for the `preparationKernel()` function) which shows how
-composite Simpson’s rule can be implemented by CUB’s device-wide
-primitives.  
-Listing [\[compositeCUBDevice\]](#compositeCUBDevice) given below is
-divided into two parts. The code snippet below illustrates the process
-associated with the generation of the sequence to be reduced:
+Finally, the reduction result is copied to the host. For convenience, Listing [3](#compositeCUBDevice) is next reported (except for the `preparationKernel()` function) which shows how composite Simpson’s rule can be implemented by CUB’s device-wide primitives.  
+Listing [3](#compositeCUBDevice) given below is divided into two parts. The code snippet below illustrates the process associated with the generation of the sequence to be reduced:
 
 ``` c++
 #include <iostream>
@@ -852,12 +792,11 @@ int main(){
     CubDebugExit(cudaPeekAtLastError());
     CubDebugExit(cudaDeviceSynchronize());
 ```
+<p align="center" id="Listing3" >
+     <em>Listing 3. Composite Simpson's rule with CUB's device-wide primitives - Part 1.</em>
+</p>
 
-The code above defines the integration domain extremals `a` and `b`, the
-number of integration nodes `N` and the discretization step `h`.
-Furthermore, it allocates device space for the sequence to be reduced by
-`cudaMalloc`. Finally, the above-mentioned preparationKernel generates
-the sequence to be reduced. The snippet below is associated with the
+The code above defines the integration domain extremals `a` and `b`, the number of integration nodes `N` and the discretization step `h`. Furthermore, it allocates device space for the sequence to be reduced by `cudaMalloc`. Finally, the above-mentioned preparationKernel generates the sequence to be reduced. The snippet below is associated with the
 reduction process:
 
 ``` c++
@@ -881,19 +820,14 @@ float h_s;
 CubDebugExit(cudaMemcpy(&h_s, d_s, sizeof(float), cudaMemcpyDeviceToHost));
 printf("The integral is %f\n", h_s); }
 ```
+<p align="center" id="Listing4" >
+     <em>Listing 4. Composite Simpson's rule with CUB's device-wide primitives - Part 2.</em>
+</p>
 
 It should be noticed that:
 
-1.  in the foregoing chapter, the CUDA error check was performed by the
-    customized function `cudaCHECK()`, while the error check is now
-    operated by the `CubDegubExit()` CUB primitive; as it can be seen,
-    CUDA APIs like `cudaMalloc()` and `cudaMemcpy()` as well as
-    `cudaPeekAtLastError()` and `cudaDeviceSynchronize()` are decorated
-    with `CubDebugExit()`;
-
-2.  the number of thread blocks used in the launch of
-    `preparationKernel()` is computed using the `iDivUp()` helper
-    function.
+1.  in the foregoing chapter, the CUDA error check was performed by the customized function `cudaCHECK()`, while the error check is now operated by the `CubDegubExit()` CUB primitive; as it can be seen, CUDA APIs like `cudaMalloc()` and `cudaMemcpy()` as well as `cudaPeekAtLastError()` and `cudaDeviceSynchronize()` are decorated with `CubDebugExit()`;
+2.  the number of thread blocks used in the launch of `preparationKernel()` is computed using the `iDivUp()` helper function.
 
 We will now see CUB’s block-wide primitives.
 
