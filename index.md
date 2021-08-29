@@ -944,33 +944,15 @@ In the next Subsection, we will see how the above schemes can be performed by us
 
 ### ModernGPU
 
-ModernGPU  is the penultimate library we will consider in the present
-chapter.  
-As a concept, ModernGPU is quite similar to CUB. As CUB, it is an
-include-only library, it is closely tied to CUDA and does not hide GPU
-programming under an abstraction layer as Thrust does. However,
-ModernGPU has been conceived more for pedagogical reasons and, as above
-mentioned, is intended to be easier to read and modify than CUB, while,
-on the other side, CUB aims for maximum performance.  
-A note of caution regards the use of ModernGPU under Windows which,
-differently from Thrust and CUB, can be tricky. It is recommendable
-using ModernGPU under Linux.  
-In the following, we will see how it is possible to use ModernGPU
-block-wide reduction primitives to implement the composite Simpson’s
-rule.
+ModernGPU  is the penultimate library we will consider in the present project.  
+As a concept, ModernGPU is quite similar to CUB. As CUB, it is an include-only library, it is closely tied to CUDA and does not hide GPU programming under an abstraction layer as Thrust does. However, ModernGPU has been conceived more for pedagogical reasons and, as above mentioned, is intended to be easier to read and modify than CUB, while, on the other side, CUB aims for maximum performance.  
+A note of caution regards the use of ModernGPU under Windows which, differently from Thrust and CUB, can be tricky. It is recommendable using ModernGPU under Linux.  
+In the following, we will see how it is possible to use ModernGPU block-wide reduction primitives to implement the composite Simpson’s rule.
 
 #### Composite Simpson’s rule using ModernGPU’s blockwide primitives
 
-The code implementing composite Simpson’s rule using ModernGPU
-block-wide primitives is illustrated in Listing
-[\[compositeModernGPUBlockWide\]](#compositeModernGPUBlockWide). It
-highlights how the same problem, namely, the implementation of composite
-Simpson’s rule, can be solved in different ways by the blockwide
-primitives of ModernGPU.  
-It allows us to compare the ModernGPU solution with that by Thrust, but
-even more with that by CUB, a library closer in spirit to ModernGPU.
-Moreover, it permits to point out the use of `lambda` expressions
-enabled by ModernGPU in the framework of parallel programming in CUDA.
+The code implementing composite Simpson’s rule using ModernGPU block-wide primitives is illustrated in Listing [6](#compositeModernGPUBlockWide). It highlights how the same problem, namely, the implementation of composite Simpson’s rule, can be solved in different ways by the blockwide primitives of ModernGPU.  
+It allows us to compare the ModernGPU solution with that by Thrust, but even more with that by CUB, a library closer in spirit to ModernGPU. Moreover, it permits to point out the use of `lambda` expressions enabled by ModernGPU in the framework of parallel programming in CUDA.
 
 ``` c++
 #include <moderngpu/kernel_reduce.hxx>
@@ -1018,56 +1000,27 @@ int main() {
     printf("The integral is %f \n", h_s[0]);
     return 0; }
 ```
+<p align="center" id="compositeModernGPUBlockWide" >
+     <em>Listing 6. Composite Simpson's rule with ModernGPU's block-wide primitives.</em>
+</p>
 
-The code in Listing
-[\[compositeModernGPUBlockWide\]](#compositeModernGPUBlockWide) must be
-compiled by using the two compilation options: `-std=c++11` and
-`--expt-extended-lambda` using the following steps:  
-If NVIDIA Nsight (a standalone application for the developing,
-debugging, profiling, and analysis of CUDA applications) is used, there
-are two options you can choose:  
+The code in Listing [6](#compositeModernGPUBlockWide) must be compiled by using the two compilation options: `-std=c++11` and `--expt-extended-lambda` using the following steps:  
+If NVIDIA Nsight (a standalone application for the developing, debugging, profiling, and analysis of CUDA applications) is used, there are two options you can choose:  
 
-  - the first option must be set by `Project | Properties | Build |
-    Settings | Tool Settings | NVCC Compiler | Code Generation` and
-    checking `Enable C++support` (`-std=c++11`);
+  - the first option must be set by `Project | Properties | Build | Settings | Tool Settings | NVCC Compiler | Code Generation` and checking `Enable C++support` (`-std=c++11`);
+  - the second option must be set by `Project | Properties | Build | Settings | NVCC Compiler | Expert settings | Command-line pattern` and appending `--expt-extended-lambda`.
 
-  - the second option must be set by `Project | Properties | Build |
-    Settings | NVCC Compiler | Expert settings | Command-line pattern`
-    and appending `--expt-extended-lambda`.
-
-Later on, an instance of `standard_context_t`, namely, `context`, is
-declared. `standard_context_t` is, in turn, an implementation of an
-abstract base class through which CUDA runtime features like
-`cudaMalloc` and `cudaFree` may be accessed.  
-Subsequent memory allocations and CUDA API calls will be performed using
-`context` as an argument.  
-At this point, an individual `float`, i.e., `d_s`, is allocated in the
-GPU memory. `d_s` will host the integration result. Furthermore, the
-lambda function `f`  computing the product between the quadrature
-weights and the function samples is defined. A `lambda` function is a
-self-contained block of functionality having different utilities, among
-which there is the possibility to be passed around. The functionalities
-of the `lambda` function `f` are exactly the same as those of the
-`preparationKernel()` and `blockReductionKernel()` detailed for the CUB
-library.  
-The input parameter of the `lambda` function is the thread index, while
-the acquisition clause `[=]` indicates that all the variables addressed
-within the function are acquired by value. For example, let us consider
-the extreme of integration a and the discretization step `h`.  
-In the `preparationKernel()` and `blockReductionKernel()` above, they
-were passed by value which means that they were automatically
-transferred from the CPU to the GPU memory, transparently to the user.
-By virtue of the acquisition clause `[=]`, this occurs also for the
-`lambda` function at hand.  
-Following the definition of the `lambda` function, `transform_reduce` is
-invoked. `transform_reduce` performs transformation and reduction. The
-transformation at hand is defined by the `lambda` function, while the
-reduction computes the value of the integral and stores it in `d_s`.
-Reduction occurs by specifying the kind of reduction, in this case,
+Later on, an instance of `standard_context_t`, namely, `context`, is declared. `standard_context_t` is, in turn, an implementation of an abstract base class through which CUDA runtime features like `cudaMalloc` and `cudaFree` may be accessed.  
+Subsequent memory allocations and CUDA API calls will be performed using `context` as an argument.  
+At this point, an individual `float`, i.e., `d_s`, is allocated in the GPU memory. `d_s` will host the integration result. Furthermore, the lambda function `f` computing the product between the quadrature weights and the function samples is defined. A `lambda` function is a self-contained block of functionality having different utilities, among
+which there is the possibility to be passed around. The functionalities of the `lambda` function `f` are exactly the same as those of the `preparationKernel()` and `blockReductionKernel()` detailed for the CUB library.  
+The input parameter of the `lambda` function is the thread index, while the acquisition clause `[=]` indicates that all the variables addressed within the function are acquired by value. For example, let us consider the extreme of integration a and the discretization step `h`.  
+In the `preparationKernel()` and `blockReductionKernel()` above, they were passed by value which means that they were automatically transferred from the CPU to the GPU memory, transparently to the user.
+By virtue of the acquisition clause `[=]`, this occurs also for the `lambda` function at hand.  
+Following the definition of the `lambda` function, `transform_reduce` is invoked. `transform_reduce` performs transformation and reduction. The transformation at hand is defined by the `lambda` function, while the reduction computes the value of the integral and stores it in `d_s`. Reduction occurs by specifying the kind of reduction, in this case,
 summation as denoted by `mgpu::plus_t<float>()`.  
-Finally, `from_mem` moves the result from the GPU to the CPU memory.  
-After having eviscerated one-dimensional integration using reusable
-software in CUDA, let us turn to the two-dimensional case.
+Finally, `from_mem` moves the result from the GPU to the CPU memory. 
+After having eviscerated one-dimensional integration using reusable software in CUDA, let us turn to the two-dimensional case.
 
 ## Theory: Two-dimensional Monte Carlo integration
 
