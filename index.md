@@ -1024,120 +1024,69 @@ After having eviscerated one-dimensional integration using reusable software in 
 
 ## Theory: Two-dimensional Monte Carlo integration
 
-When talking about the Monte Carlo method, one refers to a computational
-approach consisting of solving a problem, stochastic or deterministic,
-by performing a stochastic sampling of certain relevant quantities. The
-name *Monte Carlo* refers to the Monte Carlo casino in Monaco and it is
-a code name used during World War II to address the first idea of the
-method developed in the framework of the research on nuclear weapons in
-1940.  
-The Monte Carlo method can be also applied to numerical integration
-which, in fact, is a deterministic problem, as we have seen in the above
-sections. While, for the one-dimensional case, it is convenient to
-employ numerical techniques like those above described, in the
-multi-dimensional case Monte Carlo integration becomes of interest. In
-this section, we will see Monte Carlo integration at work in the
-two-dimensional case. In particular, we will consider the problem of
-estimating the area of the unit circle.  
+When talking about the Monte Carlo method, one refers to a computational approach consisting of solving a problem, stochastic or deterministic, by performing a stochastic sampling of certain relevant quantities. The name *Monte Carlo* refers to the Monte Carlo casino in Monaco and it is a code name used during World War II to address the first idea of the method developed in the framework of the research on nuclear weapons in 1940.  
+The Monte Carlo method can be also applied to numerical integration which, in fact, is a deterministic problem, as we have seen in the above sections. While, for the one-dimensional case, it is convenient to employ numerical techniques like those above described, in the multi-dimensional case Monte Carlo integration becomes of interest. In
+this section, we will see Monte Carlo integration at work in the two-dimensional case. In particular, we will consider the problem of estimating the area of the unit circle.  
 The area of the unit circle is actually equal to the integral
 
-\[J = \iint_D g(x,y)dD, \;\;\;\; g(x,y)=\left\{
+<p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=J = \iint_D g(x,y)dD, \;\;\;\; g(x,y)=\left\{
                 \begin{array}{ll}
                   1 & x^2+y^2\leq 1\\
                   0 & \text{otherwise}
                 \end{array}
-              \right.\]
+              \right.">,       [23]
+</p>
 
-where \(D=[-1,1]\times [-1,1]\).  
-According to Monte Carlo integration, \(J\) can be estimated by
-generating \(N\) random points \((x_i,y_i)\) in \([-1,1]\times [-1,1]\),
-\(i=0,1,\ldots,N-1\), and evaluating \(J\) as (see figure
-[1.8](#monteCarlo)):
+where <img src="https://render.githubusercontent.com/render/math?math=D=[-1,1]\times [-1,1]">.  
+According to Monte Carlo integration, <img src="https://render.githubusercontent.com/render/math?math=J"> can be estimated by generating <img src="https://render.githubusercontent.com/render/math?math=N"> random points <img src="https://render.githubusercontent.com/render/math?math=(x_i,y_i)"> in  <img src="https://render.githubusercontent.com/render/math?math=N"> random points <img src="https://render.githubusercontent.com/render/math?math=[-1,1]\times [-1,1]">,
+<img src="https://render.githubusercontent.com/render/math?math=i=0,1,\ldots,N-1">, and evaluating <img src="https://render.githubusercontent.com/render/math?math=J"> as (see figure [8](#monteCarlo)):
 
-\[J\simeq \frac{V}{N}\sum_{i=0}^{N-1}g(x_i,y_i),\]
+<p align="center">
+      <img src="https://render.githubusercontent.com/render/math?math=J\simeq \frac{V}{N}\sum_{i=0}^{N-1}g(x_i,y_i)">,       [24]
+</p>
 
-where \(V=\int_\Omega d\Omega\) is the area of \(\Omega\). In the case
-of our interest, \(V=4\).  
-Figure [1.8](#monteCarlo) below illustrates the Monte Carlo integration
-of a constant function over the unit circle:
+where <img src="https://render.githubusercontent.com/render/math?math=V=\int_\Omega d\Omega"> is the area of <img src="https://render.githubusercontent.com/render/math?math=\Omega">. In the case of our interest, <img src="https://render.githubusercontent.com/render/math?math=V=4">.  
+Figure [8](#monteCarlo) below illustrates the Monte Carlo integration of a constant function over the unit circle:
 
-![Monte Carlo integration of the unit
-circle.](/Chapter02/monteCarlo.png)
+<p align="center">
+  <img src="monteCarlo.png" width="400" id="monteCarlo">
+  <br>
+     <em>Figure 8. Monte Carlo integration of the unit
+circle.</em>
+</p>
 
-In figure [1.8](#monteCarlo), red and blu points are the generated
-random points. However, red points are points falling within the unit
-circle, while blue points are points falling outside the unit circle.  
-Estimating a two-dimensional integral with Monte Carlo method thus
-consists of three steps:
+In figure [8](#monteCarlo), red and blu points are the generated random points. However, red points are points falling within the unit circle, while blue points are points falling outside the unit circle.  
+Estimating a two-dimensional integral with Monte Carlo method thus consists of three steps:
 
-  - Generation of random points \((x_i,y_i)\), \(i=0,\ldots,N-1\);
+  - Generation of random points <img src="https://render.githubusercontent.com/render/math?math=(x_i,y_i)">, <img src="https://render.githubusercontent.com/render/math?math=i=0,\ldots,N-1">;
+  - Evaluation of the function samples <img src="https://render.githubusercontent.com/render/math?math=g(x_i,y_i)">, <img src="https://render.githubusercontent.com/render/math?math=i=0,\ldots,N-1">;
+  - Reduction of the sequence <img src="https://render.githubusercontent.com/render/math?math=\lbrace \frac{V}{N}g(x_0,y_0),\frac{V}{N}g(x_1,y_1),\ldots, \frac{V}{N}g(x_{N-1},y_{N-1})\rbrace">; since function <img src="https://render.githubusercontent.com/render/math?math=g"> has only two possible output values, then this step is equivalent to count the number of points falling within the unit circle, say <img src="https://render.githubusercontent.com/render/math?math=N_c">, and then multiplying the result by <img src="https://render.githubusercontent.com/render/math?math=V/N">.
 
-  - Evaluation of the function samples \(g(x_i,y_i)\),
-    \(i=0,\ldots,N-1\);
+In the following, three approaches to implement Monte Carlo integration for the specified problem will be shown using cuRAND and Thrust libraries.
 
-  - Reduction of the sequence
-    \(\lbrace \frac{V}{N}g(x_0,y_0),\frac{V}{N}g(x_1,y_1),\ldots, \frac{V}{N}g(x_{N-1},y_{N-1})\rbrace\);
-    since function \(g\) has only two possible output values, then this
-    step is equivalent to count the number of points falling within the
-    unit circle, say \(N_c\), and then multiplying the result by
-    \(V/N\).
+  - In the first approach, the random number generation made available by Thrust will be used.
+  - In the second approach, device-side cuRAND routines will be employed.
+  - Finally, in the third approach, host-side cuRAND routines will be exploited.
 
-In the following, three approaches to implement Monte Carlo integration
-for the specified problem will be shown using cuRAND and Thrust
-libraries.
-
-  - In the first approach, the random number generation made available
-    by Thrust will be used.
-
-  - In the second approach, device-side cuRAND routines will be
-    employed.
-
-  - Finally, in the third approach, host-side cuRAND routines will be
-    exploited.
-
-Before proceeding further, it is useful to provide some general
-information on pseudo-random number generators.
+Before proceeding further, it is useful to provide some general information on pseudo-random number generators.
 
 ### Generalities on random number generators
 
-As seen above, Monte Carlo integration needs the generation of random
-points in a plane. Therefore, before proceeding towards the
-implementation, it is useful to provide generalities about what is
-typically available in numerical libraries in terms of the generation of
-random sequences. To this end, we will recall, for a full understanding
-of the generation of random bit sequences, pseudo-random sequences, and
-quasi-random sequences.
+As seen above, Monte Carlo integration needs the generation of random points in a plane. Therefore, before proceeding towards the implementation, it is useful to provide generalities about what is typically available in numerical libraries in terms of the generation of random sequences. To this end, we will recall, for a full understanding
+of the generation of random bit sequences, pseudo-random sequences, and quasi-random sequences.
 
 #### Random bit sequences
 
-A random bit generator produces unpredictable, namely, statistically
-independent and unbiased bits. At variance with pseudorandom number
-generators (see below), for a random bit generator, the aim is to
-produce a sequence for which the knowledge of the previously generated
-bits does not result in any knowledge of any other subsequent bit.
-Pseudo-random generators are suitable in those applications where just a
-flat statistic is needed, while random generators are suitable in
-applications where unpredictability is also needed.  
-Random bit sequences are important since pseudo-random and quasi-random
-sequences are based on random bit generators.
+A random bit generator produces unpredictable, namely, statistically independent and unbiased bits. At variance with pseudorandom number generators (see below), for a random bit generator, the aim is to produce a sequence for which the knowledge of the previously generated bits does not result in any knowledge of any other subsequent bit. Pseudo-random generators are suitable in those applications where just a flat statistic is needed, while random generators are suitable in applications where unpredictability is also needed.  
+Random bit sequences are important since pseudo-random and quasi-random sequences are based on random bit generators.
 
 #### Pseudo-random sequences
 
-Pseudo-random sequences are generated by deterministic codes to mimic
-truly random sequences according to prescribed probability
-distributions. Pseudo-random sequences are not truly random since they
-are fully determined by an initial value, also called a *seed*. They are
-unfortunately periodical, namely, after a (hopefully) long period, they
-repeat themselves.  
-The elements of pseudo-random sequences have uncorrelation properties.
-For example, a uniform random generator on \([0, 1)\) produces outputs
-so that each trial has the same probability of generating a sample on
-the two equal subintervals \([0,1/2)\) and \([1/2,1)\).  
-Therefore, it can happen that \(n\) consecutive trials fall in the first
-half of the interval.  
-Regardless of that, the \(n+1\)th point still has \(1/2\) probability to
-fall within one of the two halves, namely, there is \(1/2\) probability
-that the \(n+1\)th point still falls in \([0,1/2)\).
+Pseudo-random sequences are generated by deterministic codes to mimic truly random sequences according to prescribed probability distributions. Pseudo-random sequences are not truly random since they are fully determined by an initial value, also called a *seed*. They are unfortunately periodical, namely, after a (hopefully) long period, they repeat themselves.  
+The elements of pseudo-random sequences have uncorrelation properties. For example, a uniform random generator on <img src="https://render.githubusercontent.com/render/math?math=[0, 1)"> produces outputs so that each trial has the same probability of generating a sample on the two equal subintervals <img src="https://render.githubusercontent.com/render/math?math=[0,1/2)"> and <img src="https://render.githubusercontent.com/render/math?math=[1/2,1)">.  
+Therefore, it can happen that <img src="https://render.githubusercontent.com/render/math?math=n"> consecutive trials fall in the first half of the interval.
+Regardless of that, the <img src="https://render.githubusercontent.com/render/math?math=n+1">th point still has <img src="https://render.githubusercontent.com/render/math?math=1/2"> probability to fall within one of the two halves, namely, there is <img src="https://render.githubusercontent.com/render/math?math=1/2"> probability that the <img src="https://render.githubusercontent.com/render/math?math=n+1">th point still falls in <img src="https://render.githubusercontent.com/render/math?math=[0,1/2)">.
 
 #### Quasi-random sequences
 
