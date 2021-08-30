@@ -1030,7 +1030,7 @@ this section, we will see Monte Carlo integration at work in the two-dimensional
 The area of the unit circle is actually equal to the integral
 
 <p align="center">
-      <img src="https://render.githubusercontent.com/render/math?math=J = \iint_D g(x,y)dD, \;\;\;\; g(x,y)=\left\{
+      <img src="https://render.githubusercontent.com/render/math?math=J = \iint_D g(x,y)dD, g(x,y)=\left\{
                 \begin{array}{ll}
                   1 & x^2+y^2\leq 1\\
                   0 & \text{otherwise}
