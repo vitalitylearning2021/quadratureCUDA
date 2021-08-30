@@ -1033,7 +1033,7 @@ The area of the unit circle is actually equal to the integral
       <img src="https://render.githubusercontent.com/render/math?math=J = \iint_D g(x,y)dD">,       [23]
 </p>
 
-where <img src="https://render.githubusercontent.com/render/math?math=g(x,y)=1"> if <img src="https://render.githubusercontent.com/render/math?math=x^2+y^2\leq 1"> and <img src="https://render.githubusercontent.com/render/math?math=0"> otherwise and <img src="https://render.githubusercontent.com/render/math?math=D=[-1,1]\times [-1,1]">.  
+where <img src="https://render.githubusercontent.com/render/math?math=g(x,y)=1"> if <img src="https://render.githubusercontent.com/render/math?math=x^2 %2B y^2\leq 1"> and <img src="https://render.githubusercontent.com/render/math?math=0"> otherwise and <img src="https://render.githubusercontent.com/render/math?math=D=[-1,1]\times [-1,1]">.  
 According to Monte Carlo integration, <img src="https://render.githubusercontent.com/render/math?math=J"> can be estimated by generating <img src="https://render.githubusercontent.com/render/math?math=N"> random points <img src="https://render.githubusercontent.com/render/math?math=(x_i,y_i)"> in  <img src="https://render.githubusercontent.com/render/math?math=N"> random points <img src="https://render.githubusercontent.com/render/math?math=[-1,1]\times [-1,1]">,
 <img src="https://render.githubusercontent.com/render/math?math=i=0,1,\ldots,N-1">, and evaluating <img src="https://render.githubusercontent.com/render/math?math=J"> as (see figure [8](#monteCarlo)):
 
