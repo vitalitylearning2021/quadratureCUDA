@@ -1091,29 +1091,14 @@ It is now time to turn to the implementations.
 
 ## Practice: Two-dimensional integration using reusable software
 
-In this section, we will deal with the implementation of the Monte Carlo
-method for two-dimensional integration with reusable software. We will
-use two libraries for this purpose and for the generation of random
-numbers: the Thrust and the cuRAND. In particular, we will develop three
-approaches (described below).  
-Let us start the implementation journey with the example using Thrust’s
-random number generator.  
-Next Subsection will then illustrate the first considered approach using
-such a random number generator.
+In this section, we will deal with the implementation of the Monte Carlo method for two-dimensional integration with reusable software. We will use two libraries for this purpose and for the generation of random numbers: the Thrust and the cuRAND. In particular, we will develop three approaches (described below).  
+Let us start the implementation journey with the example using Thrust’s random number generator.  
+Next Subsection will then illustrate the first considered approach using such a random number generator.
 
 ### Approach 1: Using Thrust’s random number generator
 
-The idea behind this approach is to generate, by using Thrust’s own
-random number generator, random points in the rectangle
-\([-1,1]\times [-1,1]\). Starting from these random points, we
-implicitly generate a sequence of \(0\)’s and \(1\)’s depending on
-whether the point falls within the unit circle or not and simultaneously
-reducing it by `thrust::transform_reduce`. Reduction serves to count how
-many points fall within the unit circle which provides the necessary
-information to compute the integral.  
-The number of random points `N` to be generated is defined at the
-beginning and a vector `d_p` of `N` elements deputed to accommodate the
-coordinate couples \((x,y)\) of \([-1,1]\times [-1,1]\) is allocated in
+The idea behind this approach is to generate, by using Thrust’s own random number generator, random points in the rectangle <img src="https://render.githubusercontent.com/render/math?math=[-1,1]\times [-1,1]">. Starting from these random points, we implicitly generate a sequence of <img src="https://render.githubusercontent.com/render/math?math=0">’s and <img src="https://render.githubusercontent.com/render/math?math=1">’s depending on whether the point falls within the unit circle or not and simultaneously reducing it by `thrust::transform_reduce`. Reduction serves to count how many points fall within the unit circle which provides the necessary information to compute the integral.  
+The number of random points `N` to be generated is defined at the beginning and a vector `d_p` of `N` elements deputed to accommodate the coordinate couples <img src="https://render.githubusercontent.com/render/math?math=(x,y)"> of <img src="https://render.githubusercontent.com/render/math?math=[-1,1]\times [-1,1]"> is allocated in
 the device memory as:
 
 ``` c++
