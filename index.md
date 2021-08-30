@@ -1030,15 +1030,10 @@ this section, we will see Monte Carlo integration at work in the two-dimensional
 The area of the unit circle is actually equal to the integral
 
 <p align="center">
-      <img src="https://render.githubusercontent.com/render/math?math=J = \iint_D g(x,y)dD, g(x,y)=\left\{
-                \begin{array}{ll}
-                  1 & x^2+y^2\leq 1\\
-                  0 & \text{otherwise}
-                \end{array}
-              \right.">,       [23]
+      <img src="https://render.githubusercontent.com/render/math?math=J = \iint_D g(x,y)dD">,       [23]
 </p>
 
-where <img src="https://render.githubusercontent.com/render/math?math=D=[-1,1]\times [-1,1]">.  
+where <img src="https://render.githubusercontent.com/render/math?math=g(x,y)=1"> if <img src="https://render.githubusercontent.com/render/math?math=x^2+y^2\leq 1"> and <img src="https://render.githubusercontent.com/render/math?math=0"> otherwise and <img src="https://render.githubusercontent.com/render/math?math=D=[-1,1]\times [-1,1]">.  
 According to Monte Carlo integration, <img src="https://render.githubusercontent.com/render/math?math=J"> can be estimated by generating <img src="https://render.githubusercontent.com/render/math?math=N"> random points <img src="https://render.githubusercontent.com/render/math?math=(x_i,y_i)"> in  <img src="https://render.githubusercontent.com/render/math?math=N"> random points <img src="https://render.githubusercontent.com/render/math?math=[-1,1]\times [-1,1]">,
 <img src="https://render.githubusercontent.com/render/math?math=i=0,1,\ldots,N-1">, and evaluating <img src="https://render.githubusercontent.com/render/math?math=J"> as (see figure [8](#monteCarlo)):
 
