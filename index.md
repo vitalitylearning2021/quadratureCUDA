@@ -1,5 +1,9 @@
 # Numerical quadrature in CUDA with reusable software
 
+<p align="center">
+  <img src="integration.jpg" width="400">
+</p>
+
 In many practical technical and scientific problems, analytically computing integrals can be difficult or even impossible. Nevertheless, engineers or scientists do not really need a beautiful formula expressing the integrals they are dealing with, but they just need numbers with a sufficient degree of precision. Furthermore, in many problems, iterative processes need calculating integrals of different integrand functions a very large number of times. There is thus the need for numerically computing integrals in a short time.  
 Fortunately, throughout the literature, a very large number of *numerical integration techniques*, also known as *quadrature techniques*, are available. As we will see, implementing numerical integration traces back to the problem of computing the sum of sequences, a problem that is very well suited to CUDA acceleration.  
 In this project, we will be covering the following topics:
