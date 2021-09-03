@@ -1213,11 +1213,11 @@ int main() {
 </p>
 
 Moreover, it merges the two phases of the previous approach represented by the `struct`s `generateRandomPoint` and `isInsideCircle` in a unique `struct` `estimationHelper`. The latter internally generates the random points and directly provides the <img src="https://render.githubusercontent.com/render/math?math=0">’s and <img src="https://render.githubusercontent.com/render/math?math=1">’s sequences representing the belonging of the point to the unit circle as output. Such a sequence will be once again reduced by `thrust::transform_reduce`.  
-It should be noticed that in this approach and at variance with the previous one, the coordinates of the random points are generated in <img src="https://render.githubusercontent.com/render/math?math=[0,1]"> instead of <img src="https://render.githubusercontent.com/render/math?math=[-1,1]">. This is by no means a limitation since, by exploiting the problem symmetries, we are implicitly referring to the first quadrant of figure [1.8](#monteCarlo), see figure [9](#partialMonteCarlo). In other words, the rest of the code can remain the same since the relative areas of the unit circle and unit square are the same as their portions within the first quadrant.  
+It should be noticed that in this approach and at variance with the previous one, the coordinates of the random points are generated in <img src="https://render.githubusercontent.com/render/math?math=[0,1]"> instead of <img src="https://render.githubusercontent.com/render/math?math=[-1,1]">. This is by no means a limitation since, by exploiting the problem symmetries, we are implicitly referring to the first quadrant of figure [8](#monteCarlo), see figure [9](#partialMonteCarlo). In other words, the rest of the code can remain the same since the relative areas of the unit circle and unit square are the same as their portions within the first quadrant.  
 Figure [9](#partialMonteCarlo) illustrates “partial” Monte Carlo integration:
 
 <p align="center">
-  <img src="partialMonteCarlo.jpg" width="400" id="partialMonteCarlo">
+  <img src="partialMonteCarlo.png" width="400" id="partialMonteCarlo">
   <br>
      <em>Figure 9. “Partial” Monte Carlo integration.</em>
 </p>
